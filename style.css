@@ -9,8 +9,8 @@ input[type="number"].error {
 }
 
 .col-sal {
-    width: 25px;
-    max-width: 100px;
+    width: 100px;
+    max-width: 200px;
     background-color: rgb(128, 247, 128);
     border-color: rgb(19, 139, 19);
 }
