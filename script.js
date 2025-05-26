@@ -50,8 +50,8 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
 
       const tr = document.createElement("tr");
 
-      //Mostrar solo columnas B-H (index 0-7)
-      for (let i = 1; i < 8; i++) {
+      //Mostrar solo columnas A-H (index 0-7)
+      for (let i = 0; i < 8; i++) {
         const td = document.createElement("td");
         if (row[i] !== undefined && row[i] !== "") {
           const value = parseFloat(row[i]);
