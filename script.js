@@ -3,85 +3,79 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
   const reader = new FileReader();
 
   reader.onload = function (e) {
+    //Nombre del achivo
+    document.getElementById(
+      "fileNameTitle"
+    ).textContent = `Archivo cargado: ${file.name}`;
+
+    //Cargar archivo EXCEL
     const data = new Uint8Array(e.target.result);
     const workbook = XLSX.read(data, { type: "array" });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
+    //Vaciar tablas
     const table = document.getElementById("dataTable");
     table.innerHTML = "";
 
-    const headers = [
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "SAL %",
-      "Importo SAL",
-      "A FINIRE %",
-      "Importo A FINIRE",
-    ];
     const thead = document.createElement("thead");
     const headerRow = document.createElement("tr");
-    headers.forEach((h) => {
+
+    //Cabezera real de la tabla
+    const excelHeaders = json[0];
+    excelHeaders.forEach((colName) => {
       const th = document.createElement("th");
-      th.textContent = h;
+      th.textContent = colName;
       headerRow.appendChild(th);
     });
+
+    //Columnas adicionales
+    ["SAL %", "Importo SAL", "A FINIRE %", "Importo A FINIRE"].forEach(
+      (name) => {
+        const th = document.createElement("th");
+        th.textContent = name;
+        if (name === "SAL %") th.classList.add("col-sal"); // Aplica ancho especial
+        headerRow.appendChild(th);
+      }
+    );
+
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
 
     json.forEach((row, index) => {
-      if (index === 0) return;
+      if (index === 0) return; // Saltar la cabecera
 
       const tr = document.createElement("tr");
 
-      for (let i = 0; i < 8; i++) {
+      //Mostrar solo columnas B-H (index 0-7)
+      for (let i = 1; i < 8; i++) {
+        const td = document.createElement("td");
         if (row[i] !== undefined && row[i] !== "") {
-          const td = document.createElement("td");
           const value = parseFloat(row[i]);
           td.textContent = !isNaN(value) ? value.toFixed(2) : row[i];
-          tr.appendChild(td);
         } else {
-          const td = document.createElement("td");
           td.textContent = "";
-          tr.appendChild(td);
         }
+        tr.appendChild(td);
       }
 
-      // --- Columna SAL %
+      // --- SAL % input ---
       const salTd = document.createElement("td");
-      const inputGroup = document.createElement("div");
-      inputGroup.className = "input-group input-group-sm";
-
-      const decrementBtn = document.createElement("button");
-      decrementBtn.className = "btn btn-outline-secondary";
-      decrementBtn.textContent = "−";
-
-      const incrementBtn = document.createElement("button");
-      incrementBtn.className = "btn btn-outline-secondary";
-      incrementBtn.textContent = "+";
+      salTd.classList.add("col-sal");
 
       const input = document.createElement("input");
       input.type = "number";
       input.className = "form-control text-end";
-      input.step = "0.01";
       input.min = "0";
       input.max = "100";
-      input.value = "0.00";
+      input.placeholder = "0.00";
 
-      inputGroup.appendChild(decrementBtn);
-      inputGroup.appendChild(input);
-      inputGroup.appendChild(incrementBtn);
-      salTd.appendChild(inputGroup);
+      salTd.appendChild(input);
 
+      // --- Cálculo de valores ---
       const hValue = parseFloat(row[7]) || 0;
 
       const salImporto = document.createElement("td");
@@ -96,10 +90,10 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
       function updateSAL() {
         let val = parseFloat(input.value);
         val = isNaN(val) ? 0 : val;
-        val = Math.max(0, Math.min(val, 100));
+        val = Math.max(0, Math.min(val, 100)); // Clamp entre 0-100
         input.value = val.toFixed(2);
 
-        if (val > 100) {
+        if (val > 100 || val < 0) {
           input.classList.add("error");
         } else {
           input.classList.remove("error");
@@ -112,14 +106,6 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
       }
 
       input.addEventListener("input", updateSAL);
-      incrementBtn.addEventListener("click", () => {
-        input.value = (parseFloat(input.value) + 1).toFixed(2);
-        updateSAL();
-      });
-      decrementBtn.addEventListener("click", () => {
-        input.value = (parseFloat(input.value) - 1).toFixed(2);
-        updateSAL();
-      });
 
       tr.appendChild(salTd);
       tr.appendChild(salImporto);

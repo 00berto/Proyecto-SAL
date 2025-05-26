@@ -1,4 +1,16 @@
 input[type="number"].error {
-    background-color: #f8d7da;
+    background-color: #fa7a84;
     border-color: #dc3545;
+}
+
+.title-tabla {
+    background-color: rgb(92, 92, 245);
+    border-color: rgb(6, 6, 148);
+}
+
+.col-sal {
+    width: 25px;
+    max-width: 100px;
+    background-color: rgb(128, 247, 128);
+    border-color: rgb(19, 139, 19);
 }
