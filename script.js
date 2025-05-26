@@ -64,11 +64,11 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
 
       // --- SAL % input ---
       const salTd = document.createElement("td");
-      salTd.classList.add("col-sal");
+      // salTd.classList.add("");
 
       const input = document.createElement("input");
       input.type = "number";
-      input.className = "form-control text-end";
+      input.className = "form-control text-end col-sal";
       input.min = "0";
       input.max = "100";
       input.placeholder = "0.00";
