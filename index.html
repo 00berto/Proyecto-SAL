@@ -7,6 +7,9 @@
     <title>Progetto SAL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.js"></script>
+
 </head>
 
 <body class="p-4">
@@ -24,10 +27,14 @@
         <div id="tableContainer">
         </div>
     </div>
+    <div>
+        <button id="printPdfBtn" class="btn btn-primary mt-4">Imprimir PDF</button>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="script.js"></script>
-    <!-- <script src="scriptD.js"></script> -->
+    <!-- <script src="script.js"></script> -->
+    <script src="scriptD.js"></script>
+    <script src="PdfGenerator.js"></script>
 </body>
 
 </html>

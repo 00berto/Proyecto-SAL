@@ -169,13 +169,13 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
         const input = document.createElement("input");
         input.type = "text";
         input.className = "form-control text-end col-sal";
-        input.value = "0.00"; // Inicializar SAL % a 0.00
+        input.value = "0";
         salTd.appendChild(input);
 
         // Celda Importo SAL (calculado)
         const salImportoTd = document.createElement("td");
         salImportoTd.className = "text-end";
-        salImportoTd.textContent = "0.00"; // Inicializar a 0.00
+        salImportoTd.textContent = "0";
 
         // Celda A FINIRE % (calculado)
         const finirePercentTd = document.createElement("td");
@@ -190,7 +190,7 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
         input.addEventListener("input", () => {
           let val = parseFloat(input.value.replace(",", "."));
           val = isNaN(val) ? 0 : Math.min(Math.max(val, 0), 100); // Limitar entre 0 y 100
-          input.value = val.toFixed(2);
+          input.value = val;
 
           if (val > 100 || val < 0) {
             input.classList.add("is-invalid");
@@ -253,12 +253,15 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
         );
         // Ajustar colMap a tus nuevos nombres de cabecera si "Importe Unitario" es "H"
         colMap = {
-          unitario: globalHeaders.indexOf("H"), // Asumo "H" es tu "Importe Unitario"
+          unitario: globalHeaders.indexOf("H"),
+          // Asumo "H" es tu "Importe Unitario"
           // Las otras columnas "SAL %", "A FINIRE %", etc. son añadidas dinámicamente,
           // por lo que no se buscan en las cabeceras originales del Excel.
           // Mantén G y H si son columnas originales que necesitas para los totales.
-          G: globalHeaders.indexOf("G"),
-          H: globalHeaders.indexOf("H"),
+          //G: globalHeaders.indexOf("G"),
+          G: globalHeaders.indexOf("IMPORTE unitario"),
+          H: globalHeaders.indexOf("IMPORTE totale CONTRACTO"),
+          //H: globalHeaders.indexOf("H"),
         };
         // Validar que las columnas G y H existen
         if (colMap.G === -1)
