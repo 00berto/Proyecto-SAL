@@ -86,6 +86,9 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
         currentTable = createTable();
         return;
       }
+      if (currentTable.length > 0) {
+        renderTable(currentTable, tableIndex);
+      }
 
       const isTitleRow = row[0] && row[1] && row.slice(2).every((v) => !v);
 
