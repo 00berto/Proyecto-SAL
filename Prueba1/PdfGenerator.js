@@ -2,19 +2,17 @@
 
 class PdfGenerator {
   constructor() {
+    // Asegúrate de que jspdf y jspdf-autotable estén cargados globalmente
     if (
       typeof window.jspdf === "undefined" ||
-      typeof window.jspdf.jsPDF === "undefined" ||
       typeof window.jspdf.AutoTable === "undefined"
     ) {
       console.error(
         "Error: Las librerías jsPDF o jspdf-autotable no están cargadas. Asegúrate de incluirlas antes de PdfGenerator.js"
       );
-      // Puedes lanzar un error o hacer que la clase no funcione
-      this.doc = null;
-    } else {
-      this.doc = new window.jspdf.jsPDF();
+      return; // Detener la ejecución si las librerías no están disponibles
     }
+    this.doc = new window.jspdf.jsPDF();
   }
 
   /**
@@ -31,11 +29,6 @@ class PdfGenerator {
     columnsToExtractIndices,
     outputFileName = "Reporte_SAL.pdf"
   ) {
-    if (!this.doc) {
-      console.error("jsPDF no está inicializado. No se puede generar el PDF.");
-      return;
-    }
-
     const container = document.getElementById(containerId);
     if (!container) {
       console.error(`Contenedor con ID '${containerId}' no encontrado.`);
@@ -67,12 +60,8 @@ class PdfGenerator {
       ).map((th) => th.textContent.trim());
 
       // Filtrar las cabeceras para el PDF basándose en los índices proporcionados
-      // Asegúrate de que los índices son válidos y que el nombre de la cabecera no es una cadena vacía
       const pdfHeaders = columnsToExtractIndices
-        .filter(
-          (idx) =>
-            idx !== -1 && idx < htmlHeaders.length && htmlHeaders[idx] !== ""
-        )
+        .filter((idx) => idx !== -1 && idx < htmlHeaders.length) // Asegurarse de que el índice es válido
         .map((idx) => htmlHeaders[idx]);
 
       // Excluir la fila de totales del cuerpo de datos, se añade al final
@@ -88,7 +77,7 @@ class PdfGenerator {
           if (cells[colIndex]) {
             rowData.push(cells[colIndex].textContent.trim());
           } else {
-            rowData.push(""); // Celda vacía si el índice no existe
+            rowData.push("");
           }
         });
         return rowData;
@@ -125,7 +114,8 @@ class PdfGenerator {
           fontSize: 8,
           cellPadding: 2,
           valign: "middle",
-          halign: "right", // Por defecto, alineación a la derecha
+          // Considera que las columnas numéricas deben estar a la derecha
+          halign: "right", // Por defecto a la derecha
         },
         headStyles: {
           fillColor: [200, 200, 200],
@@ -134,9 +124,9 @@ class PdfGenerator {
           halign: "center",
         },
         columnStyles: {
-          // Puedes añadir estilos específicos si es necesario, ej. para columnas de texto:
-          // 0: { halign: 'left' }, // Para la primera columna si es un ID/Texto
-          // 1: { halign: 'left' }, // Para la segunda columna si es un ID/Texto
+          // Puedes ajustar esto para alinear columnas específicas a la izquierda si son texto
+          // o para que las columnas "SAL %" e "Importo SAL" siempre estén a la derecha
+          // Esto requeriría saber los índices de estas columnas *dentro de pdfHeaders*
         },
         didDrawPage: (data) => {
           // Paginación si la tabla es demasiado larga para la página actual
