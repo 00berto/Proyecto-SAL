@@ -151,7 +151,8 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
       input.addEventListener("input", () => {
         let val = parseFloat(input.value.replace(",", "."));
         val = isNaN(val) ? 0 : Math.min(Math.max(val, 0), 100);
-        input.value = val.toFixed(2);
+        //input.value = val.toFixed(2);
+        input.value = val;
 
         if (val > 100 || val < 0) {
           input.classList.add("error");
