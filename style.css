@@ -14,3 +14,10 @@ input[type="number"].error {
     background-color: rgb(128, 247, 128);
     border-color: rgb(19, 139, 19);
 }
+
+.totals-row {
+    font-size: 1.5em;
+    font-weight: bold;
+    background-color: rgba(190, 185, 185, 0.555);
+
+}
