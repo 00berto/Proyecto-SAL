@@ -36,7 +36,6 @@ document.getElementById("excelFile").addEventListener("change", function (e) {
     for (let i = 1; i < json.length; i++) {
       const rowData = json[i];
 
-      // Si la fila está vacía, cerrar tabla actual y crear una nueva
       if (rowData.every((cell) => cell === undefined || cell === "")) {
         updateTableTotals(table);
         tableContainer.appendChild(table);
@@ -51,7 +50,37 @@ document.getElementById("excelFile").addEventListener("change", function (e) {
         input.value = rowData[j] || "";
 
         input.addEventListener("input", () => {
-          updateCalculatedFields(input.closest("tr"));
+          const rowCells = input.closest("tr").querySelectorAll("td");
+
+          const percentSAL =
+            parseFloat(rowCells[8]?.querySelector("input")?.value) || 0;
+          const importoTotContratto =
+            parseFloat(rowCells[7]?.querySelector("input")?.value) || 0;
+
+          // Calcolo Importo SAL (colonna 9)
+          const importoSALCell = rowCells[9]?.querySelector("input");
+          if (importoSALCell) {
+            importoSALCell.value = (
+              (percentSAL / 100) *
+              importoTotContratto
+            ).toFixed(2);
+          }
+
+          // Calcolo % A FINIRE (colonna 10)
+          const percentAFinireCell = rowCells[10]?.querySelector("input");
+          if (percentAFinireCell) {
+            percentAFinireCell.value = (100 - percentSAL).toFixed(2);
+          }
+
+          // Calcolo Importo A FINIRE (colonna 11)
+          const importoAFinireCell = rowCells[11]?.querySelector("input");
+          if (importoAFinireCell) {
+            importoAFinireCell.value = (
+              importoTotContratto -
+              (percentSAL / 100) * importoTotContratto
+            ).toFixed(2);
+          }
+
           updateTableTotals(table);
         });
 
@@ -67,37 +96,6 @@ document.getElementById("excelFile").addEventListener("change", function (e) {
   };
   reader.readAsArrayBuffer(e.target.files[0]);
 });
-
-function updateCalculatedFields(row) {
-  const rowCells = row.querySelectorAll("td");
-  const percentSAL =
-    parseFloat(rowCells[8]?.querySelector("input")?.value) || 0;
-  const importoTotContratto =
-    parseFloat(rowCells[7]?.querySelector("input")?.value) || 0;
-
-  // Calcolo Importo SAL
-  const importoSALCell = rowCells[9]?.querySelector("input");
-  if (importoSALCell) {
-    importoSALCell.value = ((percentSAL / 100) * importoTotContratto).toFixed(
-      2
-    );
-  }
-
-  // Calcolo Importo A FINIRE
-  const importoAFinireCell = rowCells[11]?.querySelector("input");
-  if (importoAFinireCell) {
-    importoAFinireCell.value = (
-      importoTotContratto -
-      (percentSAL / 100) * importoTotContratto
-    ).toFixed(2);
-  }
-
-  // Calcolo % A FINIRE
-  const percentAFinireCell = rowCells[10]?.querySelector("input");
-  if (percentAFinireCell) {
-    percentAFinireCell.value = (100 - percentSAL).toFixed(2);
-  }
-}
 
 function updateTableTotals(table) {
   const rows = table.querySelectorAll("tbody tr");
