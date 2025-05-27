@@ -1,0 +1,95 @@
+**
+    /**
+     * Crea y añade una tabla HTML al contenedor.
+     * @param {string} titleText - Título de la tabla.
+     * @param {Array<Array<any>>} dataRows - Filas de datos para la tabla.
+     * @param {Array<string>} tableHeaders - Cabeceras de la tabla (originales + SAL).
+     * @param {Object} columnMap - Mapeo de nombres de columnas originales a índices.
+     */
+    const createAndAppendTable = (
+      titleText,
+      dataRows,
+      tableHeaders,
+      columnMap
+    ) => {
+      // No crear tabla si no hay datos de fila reales (solo un título sin datos no crea tabla)
+      if (dataRows.length === 0) {
+        return;
+      }
+
+      const tableWrapper = document.createElement("div");
+      tableWrapper.className = "table-wrapper";
+
+      if (titleText) {
+        const title = document.createElement("h4");
+        title.textContent = titleText;
+        tableWrapper.appendChild(title);
+      }
+
+      const table = document.createElement("table");
+      table.className = "table table-bordered table-sm mb-4";
+
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+
+      // Añadir cabeceras originales
+      tableHeaders.forEach((col) => {
+        const th = document.createElement("th");
+        th.textContent = col;
+        headerRow.appendChild(th);
+      });
+
+      // Añadir las nuevas columnas SAL a la cabecera
+      ["SAL %", "Importo SAL", "A FINIRE %", "Importo A FINIRE"].forEach(
+        (name) => {
+          const th = document.createElement("th");
+          th.textContent = name;
+          if (name === "SAL %") th.classList.add("col-sal");
+          headerRow.appendChild(th);
+        }
+      );
+
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      table.appendChild(tbody);
+      tableWrapper.appendChild(table);
+      container.appendChild(tableWrapper);
+
+      // --- Selector de columna a totalizar por tabla ---
+      const totalSelectorDiv = document.createElement("div");
+      totalSelectorDiv.className = "d-flex align-items-center mb-3"; // Flexbox para alinear
+      const totalLabel = document.createElement("label");
+      totalLabel.htmlFor = `totalColSelect-${Date.now()}`; // ID único
+      totalLabel.textContent = "Totalizar columna: ";
+      totalLabel.className = "form-label me-2 mb-0"; // Clase de Bootstrap
+
+      const totalColSelect = document.createElement("select");
+      totalColSelect.className = "form-select total-col-select";
+      totalColSelect.id = totalLabel.htmlFor; // Vincular label y select
+
+      // Rellenar el selector con las columnas disponibles para totalizar
+      globalTotalableColumns.forEach((colName, index) => {
+        const option = document.createElement("option");
+        option.value = index; // Usar el índice original de la columna
+        option.textContent = colName;
+        totalColSelect.appendChild(option);
+      });
+      // Seleccionar por defecto la columna "H" (Importo Unitario) si existe
+      const defaultTotalColIndex = globalTotalableColumns.indexOf("H"); // O "Importo Unitario"
+      if (defaultTotalColIndex !== -1) {
+        totalColSelect.value = defaultTotalColIndex;
+      } else if (globalTotalableColumns.length > 0) {
+        totalColSelect.value = "0"; // Por defecto la primera columna si no encuentra H
+      } else {
+        totalColSelect.disabled = true; // Desactivar si no hay columnas totalizables
+      }
+
+      totalSelectorDiv.appendChild(totalLabel);
+      totalSelectorDiv.appendChild(totalColSelect);
+      tableWrapper.appendChild(totalSelectorDiv);
+      // --- Fin Selector de columna a totalizar por tabla ---
+            const updateTableTotals = () => {
+        let tempTotals = {};
+        const selectedColIndex = parseInt(totalColSelect.value); // Columna seleccionada para totalizar

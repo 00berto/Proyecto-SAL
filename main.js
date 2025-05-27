@@ -32,96 +32,48 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
     let globalTotalableColumns = []; // Nombres de columnas que se pueden totalizar (para el select)
 
     /**
-     * Helper para verificar si una celda está vacía.
-     */
-    const isCellEmpty = (cell) =>
-      cell === undefined || cell === null || String(cell).trim() === "";
-
-    /**
      * Crea y añade una tabla HTML al contenedor.
      * @param {string} titleText - Título de la tabla.
      * @param {Array<Array<any>>} dataRows - Filas de datos para la tabla.
      * @param {Array<string>} tableHeaders - Cabeceras de la tabla (originales + SAL).
-     * @param {Object} columnMap - Mapeo de nombres de columnas originales a índices.
+     * @param {number} baseCalcColIndex - El índice de la columna base para los cálculos SAL.
+     * @param {Array<string>} totalableCols - Nombres de las columnas que pueden ser totalizadas (para el selector por tabla).
      */
     const createAndAppendTable = (
       titleText,
       dataRows,
       tableHeaders,
-      columnMap
+      baseCalcColIndex,
+      totalableCols
     ) => {
-      // No crear tabla si no hay datos de fila reales (solo un título sin datos no crea tabla)
-      if (dataRows.length === 0) {
-        return;
-      }
+      // ... (parte de creación de la tabla, cabeceras, tbody, sin cambios relevantes para este punto) ...
 
-      const tableWrapper = document.createElement("div");
-      tableWrapper.className = "table-wrapper";
-
-      if (titleText) {
-        const title = document.createElement("h4");
-        title.textContent = titleText;
-        tableWrapper.appendChild(title);
-      }
-
-      const table = document.createElement("table");
-      table.className = "table table-bordered table-sm mb-4";
-
-      const thead = document.createElement("thead");
-      const headerRow = document.createElement("tr");
-
-      // Añadir cabeceras originales
-      tableHeaders.forEach((col) => {
-        const th = document.createElement("th");
-        th.textContent = col;
-        headerRow.appendChild(th);
-      });
-
-      // Añadir las nuevas columnas SAL a la cabecera
-      ["SAL %", "Importo SAL", "A FINIRE %", "Importo A FINIRE"].forEach(
-        (name) => {
-          const th = document.createElement("th");
-          th.textContent = name;
-          if (name === "SAL %") th.classList.add("col-sal");
-          headerRow.appendChild(th);
-        }
-      );
-
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement("tbody");
-      table.appendChild(tbody);
-      tableWrapper.appendChild(table);
-      container.appendChild(tableWrapper);
-
-      // --- Selector de columna a totalizar por tabla ---
+      // --- Selector de columna a totalizar por tabla (para columnas originales) ---
+      // Este selector sigue controlando solo la columna original que el usuario quiere totalizar
       const totalSelectorDiv = document.createElement("div");
-      totalSelectorDiv.className = "d-flex align-items-center mb-3"; // Flexbox para alinear
+      totalSelectorDiv.className = "d-flex align-items-center mb-3";
       const totalLabel = document.createElement("label");
-      totalLabel.htmlFor = `totalColSelect-${Date.now()}`; // ID único
-      totalLabel.textContent = "Totalizar columna: ";
-      totalLabel.className = "form-label me-2 mb-0"; // Clase de Bootstrap
+      totalLabel.htmlFor = `totalColSelect-${Date.now()}`;
+      totalLabel.textContent = "Totalizar columna original: ";
+      totalLabel.className = "form-label me-2 mb-0";
 
       const totalColSelect = document.createElement("select");
       totalColSelect.className = "form-select total-col-select";
-      totalColSelect.id = totalLabel.htmlFor; // Vincular label y select
+      totalColSelect.id = totalLabel.htmlFor;
 
-      // Rellenar el selector con las columnas disponibles para totalizar
-      globalTotalableColumns.forEach((colName, index) => {
+      totalableCols.forEach((colName) => {
         const option = document.createElement("option");
-        option.value = index; // Usar el índice original de la columna
+        option.value = tableHeaders.indexOf(colName);
         option.textContent = colName;
         totalColSelect.appendChild(option);
       });
-      // Seleccionar por defecto la columna "H" (Importo Unitario) si existe
-      const defaultTotalColIndex = globalTotalableColumns.indexOf("H"); // O "Importo Unitario"
-      if (defaultTotalColIndex !== -1) {
-        totalColSelect.value = defaultTotalColIndex;
-      } else if (globalTotalableColumns.length > 0) {
-        totalColSelect.value = "0"; // Por defecto la primera columna si no encuentra H
+
+      if (totalableCols.includes(tableHeaders[baseCalcColIndex])) {
+        totalColSelect.value = baseCalcColIndex;
+      } else if (totalableCols.length > 0) {
+        totalColSelect.value = tableHeaders.indexOf(totalableCols[0]);
       } else {
-        totalColSelect.disabled = true; // Desactivar si no hay columnas totalizables
+        totalColSelect.disabled = true;
       }
 
       totalSelectorDiv.appendChild(totalLabel);
@@ -129,13 +81,89 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
       tableWrapper.appendChild(totalSelectorDiv);
       // --- Fin Selector de columna a totalizar por tabla ---
 
+      // Función para actualizar los totales de la fila de totales de esta tabla
+      const updateTableTotals = () => {
+        let tempTotals = {
+          "Importo SAL": 0, // Siempre inicializado a 0
+          "Importo A FINIRE": 0, // Siempre inicializado a 0
+        };
+        const selectedColIndex = parseInt(totalColSelect.value); // Columna original seleccionada para totalizar
+
+        // Inicializar tempTotals para la columna original seleccionada
+        if (
+          !isNaN(selectedColIndex) &&
+          selectedColIndex !== -1 &&
+          selectedColIndex < tableHeaders.length
+        ) {
+          tempTotals[tableHeaders[selectedColIndex]] = 0;
+        }
+
+        // Iterar sobre todas las filas de datos en el tbody (excluyendo la fila de totales)
+        tbody.querySelectorAll("tr:not(.total-row)").forEach((rowElement) => {
+          const cells = rowElement.querySelectorAll("td");
+
+          // Sumar el valor de la columna original seleccionada dinámicamente
+          if (
+            !isNaN(selectedColIndex) &&
+            selectedColIndex !== -1 &&
+            cells[selectedColIndex]
+          ) {
+            tempTotals[tableHeaders[selectedColIndex]] +=
+              parseFloat(cells[selectedColIndex]?.textContent) || 0;
+          }
+
+          // --- ESTOS TOTALES SIEMPRE SE SUMAN, INDEPENDIENTEMENTE DEL SELECTOR ---
+          tempTotals["Importo SAL"] +=
+            parseFloat(cells[tableHeaders.length + 1]?.textContent) || 0;
+          tempTotals["Importo A FINIRE"] +=
+            parseFloat(cells[tableHeaders.length + 3]?.textContent) || 0;
+        });
+
+        // Actualizar los textos en la fila de totales visible
+        const totalRowElement = tbody.querySelector(".total-row");
+        if (totalRowElement) {
+          const totalCells = totalRowElement.querySelectorAll("td");
+
+          // Limpiar todos los totales antes de actualizar para evitar residuos
+          totalCells.forEach((cell) => (cell.textContent = ""));
+
+          // Poner el texto "Total" en la primera celda
+          if (totalCells.length > 0) {
+            totalCells[0].textContent = "Total:";
+          }
+
+          // Actualizar la columna original seleccionada para totalizar
+          if (
+            !isNaN(selectedColIndex) &&
+            selectedColIndex !== -1 &&
+            totalCells[selectedColIndex]
+          ) {
+            totalCells[selectedColIndex].textContent =
+              tempTotals[tableHeaders[selectedColIndex]]?.toFixed(2) || "0.00";
+          }
+
+          // --- ESTOS TOTALES SIEMPRE SE MUESTRAN EN LA FILA DE TOTALES ---
+          if (totalCells[tableHeaders.length + 1])
+            totalCells[tableHeaders.length + 1].textContent =
+              tempTotals["Importo SAL"].toFixed(2);
+          if (totalCells[tableHeaders.length + 3])
+            totalCells[tableHeaders.length + 3].textContent =
+              tempTotals["Importo A FINIRE"].toFixed(2);
+        }
+      };
+      /**
+       * Helper para verificar si una celda está vacía.
+       */
+      const isCellEmpty = (cell) =>
+        cell === undefined || cell === null || String(cell).trim() === "";
+
       // Inicializar totales para esta tabla específica
       let currentTableTotals = {}; // Ahora dinámico según el select
 
       // Función para actualizar los totales de la fila de totales de esta tabla
-      const updateTableTotals = () => {
-        let tempTotals = {};
-        const selectedColIndex = parseInt(totalColSelect.value); // Columna seleccionada para totalizar
+
+        //partes en txt
+
 
         // Inicializar tempTotals para la columna seleccionada
         if (
