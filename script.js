@@ -70,7 +70,11 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
     let totals = { G: 0, H: 0, J: 0, L: 0 };
     let colMap = {};
 
-    json.forEach((row, index) => {
+    const filteredJson = json.filter((row) =>
+      row.some((cell) => cell !== undefined && cell !== null && cell !== "")
+    );
+
+    filteredJson.forEach((row, index) => {
       if (index === 0) {
         headers = row;
         colMap = {
@@ -131,11 +135,12 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
       const input = document.createElement("input");
       input.type = "text";
       input.className = "form-control text-end col-sal";
-      input.placeholder = "0.00";
+      //input.placeholder = "0.00";
       salTd.appendChild(input);
 
       const salImporto = document.createElement("td");
-      salImporto.textContent = "0.00";
+      //salImporto.textContent = "0.00";
+      salImporto.textContent = "0";
 
       const finirePercent = document.createElement("td");
       finirePercent.textContent = "100.00%";
