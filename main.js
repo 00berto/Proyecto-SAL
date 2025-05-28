@@ -392,6 +392,15 @@ const createAndAppendTable = (
         ? parseFormattedNumber(row[baseCalcColIndex])
         : 0;
 
+    console.log(
+      "Fila:",
+      row,
+      " | Valor columna base (índice 7):",
+      row[baseCalcColIndex],
+      " | baseCalcValue parseado:",
+      baseCalcValue
+    );
+
     const salTd = document.createElement("td");
     const input = document.createElement("input");
     input.type = "text";
@@ -420,6 +429,10 @@ const createAndAppendTable = (
       val = isNaN(val) ? 0 : val; // No limitar a 100 aquí, la validación visual lo hará
 
       input.value = val; // Actualiza el valor del input con el número parseado
+      //prueba***************************************************
+      console.log(input.val);
+      console.log(typeof val);
+      console.log("Input SAL %:", input.value, " | Valor parseado 'val':", val);
 
       // **Validación visual para el SAL% individual**
       if (val > 100 || val < 0) {
