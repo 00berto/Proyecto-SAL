@@ -12,7 +12,8 @@ body {
     border-radius: 0.25rem;
     background-color: #fff;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); */
-    transform: scale(0.75);
+    transform: scale(0.7);
+    transform-origin: top left;
 }
 
 .table-wrapper h4 {

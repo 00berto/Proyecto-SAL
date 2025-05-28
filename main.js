@@ -13,13 +13,23 @@ let allTablesSalTotals = [];
  * @param {string} str - La cadena de texto numérica formateada.
  * @returns {number} El número parseado o 0 si no es válido.
  */
+// const parseFormattedNumber = (str) => {
+//   if (typeof str !== "string" || !str) {
+//     return 0;
+//   }
+//   // Eliminar el separador de miles (apóstrofo) y reemplazar el separador decimal (coma) por punto
+//   const cleanedStr = str.replace(/'/g, "").replace(",", ".");
+//   return parseFloat(cleanedStr) || 0; // Si parseFloat falla, devuelve 0
+// };
+
+//CAMBIO PARA EL FORMATO ITALIANO
 const parseFormattedNumber = (str) => {
   if (typeof str !== "string" || !str) {
     return 0;
   }
-  // Eliminar el separador de miles (apóstrofo) y reemplazar el separador decimal (coma) por punto
-  const cleanedStr = str.replace(/'/g, "").replace(",", ".");
-  return parseFloat(cleanedStr) || 0; // Si parseFloat falla, devuelve 0
+  // Eliminar el separador de miles (punto) y reemplazar el separador decimal (coma) por punto
+  const cleanedStr = str.replace(/\./g, "").replace(",", "."); // <-- Cambiar aquí: eliminar punto y reemplazar coma
+  return parseFloat(cleanedStr) || 0;
 };
 
 document.getElementById("fileInput").addEventListener("change", function (e) {
@@ -302,7 +312,7 @@ const createAndAppendTable = (
       autoTotalColIndexes.forEach((idx) => {
         if (totalCells[idx]) {
           totalCells[idx].textContent =
-            tempTotals[tableHeaders[idx]]?.toLocaleString("de-CH", {
+            tempTotals[tableHeaders[idx]]?.toLocaleString("it-IT", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             }) || "0,00";
@@ -327,14 +337,14 @@ const createAndAppendTable = (
       if (totalCells[tableHeaders.length + 1])
         totalCells[tableHeaders.length + 1].textContent = tempTotals[
           "Importo SAL"
-        ].toLocaleString("de-CH", {
+        ].toLocaleString("it-IT", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         });
       if (totalCells[tableHeaders.length + 3])
         totalCells[tableHeaders.length + 3].textContent = tempTotals[
           "Importo A FINIRE"
-        ].toLocaleString("de-CH", {
+        ].toLocaleString("it-IT", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         });
@@ -366,7 +376,7 @@ const createAndAppendTable = (
       // Formatear valores numéricos de las columnas originales
       td.textContent =
         typeof value === "number" && !isNaN(value)
-          ? value.toLocaleString("de-CH", {
+          ? value.toLocaleString("it-IT", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
@@ -400,7 +410,7 @@ const createAndAppendTable = (
     const finireImportoTd = document.createElement("td");
     finireImportoTd.className = "text-end";
     // Valor inicial de Importo A FINIRE con formato de millares
-    finireImportoTd.textContent = baseCalcValue.toLocaleString("de-CH", {
+    finireImportoTd.textContent = baseCalcValue.toLocaleString("it-IT", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
