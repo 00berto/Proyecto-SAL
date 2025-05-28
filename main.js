@@ -30,6 +30,7 @@ const parseFormattedNumber = (str) => {
   // Eliminar el separador de miles (punto) y reemplazar el separador decimal (coma) por punto
   //const cleanedStr = str.replace(/\./g, "").replace(",", "."); // <-- Cambiar aquí: eliminar punto y reemplazar coma
   //return parseFloat(cleanedStr) || 0;
+  const cleanedStr = str.replace(/,/g, "");
   return parseFloat(str) || 0;
 };
 
