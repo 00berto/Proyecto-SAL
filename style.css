@@ -6,12 +6,13 @@ body {
 }
 
 .table-wrapper {
-    margin-bottom: 30px;
+    /* margin-bottom: 30px;
     padding: 15px;
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
     background-color: #fff;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); */
+    transform: scale(0.75);
 }
 
 .table-wrapper h4 {
