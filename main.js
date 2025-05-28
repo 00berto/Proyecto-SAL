@@ -9,7 +9,7 @@ let allTablesSalTotals = [];
 /**
  * Función auxiliar para limpiar un string formateado con separadores de miles y decimales
  * (ej. '1'234,56') y convertirlo a un número válido para cálculos (ej. 1234.56).
- * Asume el formato 'de-CH' (apóstrofo para miles, coma para decimales).
+ * Asume el formato 'it-IT' (apóstrofo para miles, coma para decimales).
  * @param {string} str - La cadena de texto numérica formateada.
  * @returns {number} El número parseado o 0 si no es válido.
  */
@@ -388,10 +388,15 @@ const createAndAppendTable = (
 
     // Obtener el valor de la columna base de cálculo (siempre el índice 7)
     // Es importante parsear correctamente si el valor de la celda de origen también está formateado
+    // const baseCalcValue =
+    //   baseCalcColIndex !== -1 &&
+    //   !isNaN(parseFormattedNumber(row[baseCalcColIndex]))
+    //     ? parseFormattedNumber(row[baseCalcColIndex])
+    //     : 0;
+
     const baseCalcValue =
-      baseCalcColIndex !== -1 &&
-      !isNaN(parseFormattedNumber(row[baseCalcColIndex]))
-        ? parseFormattedNumber(row[baseCalcColIndex])
+      baseCalcColIndex !== -1 && !isNaN(parseFloat(row[baseCalcColIndex]))
+        ? parseFloat(row[baseCalcColIndex])
         : 0;
 
     console.log(
@@ -412,7 +417,7 @@ const createAndAppendTable = (
 
     const salImportoTd = document.createElement("td");
     salImportoTd.className = "text-end";
-    salImportoTd.textContent = "0,00"; // Valor inicial del importe SAL (formato de-CH)
+    salImportoTd.textContent = "0,00"; // Valor inicial del importe SAL (formato it-IT)
 
     const finirePercentTd = document.createElement("td");
     finirePercentTd.className = "text-end";
@@ -571,7 +576,7 @@ const generateSummaryTable = () => {
     tdTitle.textContent = item.title;
     const tdSalTotal = document.createElement("td");
     // Formatear el total SAL con separador de millares
-    tdSalTotal.textContent = item.salTotal.toLocaleString("de-CH", {
+    tdSalTotal.textContent = item.salTotal.toLocaleString("it-IT", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -590,7 +595,7 @@ const generateSummaryTable = () => {
   grandTotalLabelCell.colSpan = 1; // Ocupa una columna
   const grandTotalValueCell = document.createElement("td");
   // Formatear el gran total con separador de millares
-  grandTotalValueCell.textContent = grandTotalSal.toLocaleString("de-CH", {
+  grandTotalValueCell.textContent = grandTotalSal.toLocaleString("it-IT", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

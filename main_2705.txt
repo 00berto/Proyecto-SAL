@@ -363,14 +363,14 @@ const createAndAppendTable = (
 
       //Añadimos logica para milares 1'000
       salImportoTd.textContent = (baseCalcValue * percent).toLocaleString(
-        "de-CH",
+        "it-IT",
         { minimumFractionDigits: 2, maximumFractionDigits: 2 }
       );
       finirePercentTd.textContent = ((1 - percent) * 100).toFixed(2) + "%"; // Este es un porcentaje, no necesita separador de miles
       finireImportoTd.textContent = (
         baseCalcValue *
         (1 - percent)
-      ).toLocaleString("de-CH", {
+      ).toLocaleString("it-IT", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
