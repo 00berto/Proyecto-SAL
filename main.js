@@ -432,14 +432,14 @@ const createAndAppendTable = (
 
       const percent = val / 100;
       salImportoTd.textContent = (baseCalcValue * percent).toLocaleString(
-        "de-CH",
+        "it-IT",
         { minimumFractionDigits: 2, maximumFractionDigits: 2 }
       );
       finirePercentTd.textContent = ((1 - percent) * 100).toFixed(2) + "%";
       finireImportoTd.textContent = (
         baseCalcValue *
         (1 - percent)
-      ).toLocaleString("de-CH", {
+      ).toLocaleString("it-IT", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
