@@ -13,24 +13,25 @@ let allTablesSalTotals = [];
  * @param {string} str - La cadena de texto numérica formateada.
  * @returns {number} El número parseado o 0 si no es válido.
  */
-const parseFormattedNumber = (str) => {
-  if (typeof str !== "string" || !str) {
-    return 0;
-  }
-  // Eliminar el separador de miles (apóstrofo) y reemplazar el separador decimal (coma) por punto
-  const cleanedStr = str.replace(/'/g, "").replace(",", ".");
-  return parseFloat(cleanedStr) || 0; // Si parseFloat falla, devuelve 0
-};
-
-//CAMBIO PARA EL FORMATO ITALIANO
 // const parseFormattedNumber = (str) => {
 //   if (typeof str !== "string" || !str) {
 //     return 0;
 //   }
-//   // Eliminar el separador de miles (punto) y reemplazar el separador decimal (coma) por punto
-//   const cleanedStr = str.replace(/\./g, "").replace(",", "."); // <-- Cambiar aquí: eliminar punto y reemplazar coma
-//   return parseFloat(cleanedStr) || 0;
+//   // Eliminar el separador de miles (apóstrofo) y reemplazar el separador decimal (coma) por punto
+//   const cleanedStr = str.replace(/'/g, "").replace(",", ".");
+//   return parseFloat(cleanedStr) || 0; // Si parseFloat falla, devuelve 0
 // };
+
+//CAMBIO PARA EL FORMATO ITALIANO
+const parseFormattedNumber = (str) => {
+  if (typeof str !== "string" || !str) {
+    return 0;
+  }
+  // Eliminar el separador de miles (punto) y reemplazar el separador decimal (coma) por punto
+  //const cleanedStr = str.replace(/\./g, "").replace(",", "."); // <-- Cambiar aquí: eliminar punto y reemplazar coma
+  //return parseFloat(cleanedStr) || 0;
+  return parseFloat(str) || 0;
+};
 
 document.getElementById("fileInput").addEventListener("change", function (e) {
   const file = e.target.files[0];
@@ -430,7 +431,7 @@ const createAndAppendTable = (
 
       input.value = val; // Actualiza el valor del input con el número parseado
       //prueba***************************************************
-      console.log(input.val);
+      console.log(input.value);
       console.log(typeof val);
       console.log("Input SAL %:", input.value, " | Valor parseado 'val':", val);
 
