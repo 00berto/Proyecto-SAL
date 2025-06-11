@@ -8,6 +8,7 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
     document.getElementById("fileNameTitle").textContent = "";
     document.getElementById("tableContainer").innerHTML = "";
     document.getElementById("printPdfBtn").style.display = "none";
+    document.getElementById("printPdfBtn").style.display = "none";
     // globalCalculationColumnSelector ya es visible, solo lo limpiamos/deshabilitamos si no hay archivo
     document.getElementById("baseCalcColSelect").innerHTML = "";
     document.getElementById("baseCalcColSelect").disabled = true;

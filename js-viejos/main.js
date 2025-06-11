@@ -6,6 +6,9 @@ const BASE_CALC_COL_INDEX = 7;
 // Array para almacenar los totales de "Importo SAL" de cada tabla para el resumen global
 let allTablesSalTotals = [];
 
+// Contador para las tablas SAL adicionales que se generarán con el botón
+let salTableCounter = 0;
+
 /**
  * Función auxiliar para limpiar un string formateado con separadores de miles y decimales
  * (ej. '1'234,56') y convertirlo a un número válido para cálculos (ej. 1234.56).
@@ -13,25 +16,13 @@ let allTablesSalTotals = [];
  * @param {string} str - La cadena de texto numérica formateada.
  * @returns {number} El número parseado o 0 si no es válido.
  */
-// const parseFormattedNumber = (str) => {
-//   if (typeof str !== "string" || !str) {
-//     return 0;
-//   }
-//   // Eliminar el separador de miles (apóstrofo) y reemplazar el separador decimal (coma) por punto
-//   const cleanedStr = str.replace(/'/g, "").replace(",", ".");
-//   return parseFloat(cleanedStr) || 0; // Si parseFloat falla, devuelve 0
-// };
-
-//CAMBIO PARA EL FORMATO ITALIANO
 const parseFormattedNumber = (str) => {
   if (typeof str !== "string" || !str) {
     return 0;
   }
-  // Eliminar el separador de miles (punto) y reemplazar el separador decimal (coma) por punto
-  //const cleanedStr = str.replace(/\./g, "").replace(",", "."); // <-- Cambiar aquí: eliminar punto y reemplazar coma
-  //return parseFloat(cleanedStr) || 0;
-  const cleanedStr = str.replace(/,/g, "");
-  return parseFloat(str) || 0;
+  // Eliminar el separador de miles (punto o apóstrofo, dependiendo del formato real) y reemplazar la coma por punto
+  const cleanedStr = str.replace(/\./g, "").replace(/'/g, "").replace(",", ".");
+  return parseFloat(cleanedStr) || 0;
 };
 
 document.getElementById("fileInput").addEventListener("change", function (e) {
@@ -40,7 +31,9 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
     document.getElementById("fileNameTitle").textContent = "";
     document.getElementById("tableContainer").innerHTML = "";
     document.getElementById("printPdfBtn").style.display = "none";
+    document.getElementById("tabla-sal").style.display = "none";
     allTablesSalTotals = []; // Limpiar totales si no hay archivo
+    salTableCounter = 0; // Resetear contador de tablas SAL adicionales
     return;
   }
 
@@ -61,7 +54,10 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
     const container = document.getElementById("tableContainer");
     container.innerHTML = ""; // Limpiar tablas anteriores
     document.getElementById("printPdfBtn").style.display = "none";
+    // Asegurarse de que el botón 'tabla-sal' esté oculto al cargar un nuevo archivo inicialmente
+    document.getElementById("tabla-sal").style.display = "none";
     allTablesSalTotals = []; // Resetear los totales para un nuevo archivo
+    salTableCounter = 0; // Resetear el contador de tablas SAL
 
     let globalHeaders = [];
     const isCellEmpty = (cell) =>
@@ -77,6 +73,7 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
         "fileNameTitle"
       ).textContent = `Archivo cargado: ${file.name} (vacío o sin datos)`;
       document.getElementById("printPdfBtn").style.display = "none";
+      document.getElementById("tabla-sal").style.display = "none";
       return;
     }
 
@@ -93,6 +90,7 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
         }") no existe o está fuera de rango en el archivo Excel.`
       );
       document.getElementById("printPdfBtn").style.display = "none";
+      document.getElementById("tabla-sal").style.display = "none";
       return;
     }
 
@@ -102,8 +100,7 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
       5, // IMPORTO unitario (SENZA COSTO)
       6, // IMPORTO unitario
       7, // IMPORTO totale CONTRATTO (nuestra base SAL)
-      9, // Importo SAL (calculada)
-      11, // Importo A FINIRE (calculada)
+      // Nota: Importo SAL (calculada) y Importo A FINIRE (calculada) se manejan por separado ya que se añaden dinámicamente
     ];
     // Nombres para referencia (aunque no se usan para la UI de selección, son útiles para depuración)
     const autoTotalColumnNames = autoTotalColumnIndexes.map(
@@ -119,6 +116,7 @@ document.getElementById("fileInput").addEventListener("change", function (e) {
       autoTotalColumnNames
     );
     document.getElementById("printPdfBtn").style.display = "block";
+    document.getElementById("tabla-sal").style.display = "block"; // Mostrar el botón 'tabla-sal'
   };
 
   reader.readAsArrayBuffer(file);
@@ -229,7 +227,9 @@ const createAndAppendTable = (
   }
 
   const table = document.createElement("table");
-  table.className = "table table-bordered table-sm mb-4";
+  table.className = "table table-bordered table-sm mb-1";
+  // Añadir un atributo de datos para identificar el título de la sección original
+  table.setAttribute("data-section-title", titleText);
 
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
@@ -283,6 +283,7 @@ const createAndAppendTable = (
       });
 
       // Sumar los valores de Importo SAL y Importo A FINIRE
+      // Nota: Estos están en posiciones de columna añadidas dinámicamente
       tempTotals["Importo SAL"] += parseFormattedNumber(
         cells[tableHeaders.length + 1]?.textContent
       );
@@ -369,8 +370,10 @@ const createAndAppendTable = (
   };
 
   // Llenar el tbody con los datos de las filas y configurar los inputs SAL %
-  dataRows.forEach((row) => {
+  dataRows.forEach((row, rowIndex) => {
+    // Se añadió rowIndex para identificar cada fila
     const tr = document.createElement("tr");
+    tr.setAttribute("data-row-index", rowIndex); // Añadir un atributo de datos para el índice de fila
 
     tableHeaders.forEach((_, i) => {
       const td = document.createElement("td");
@@ -387,36 +390,21 @@ const createAndAppendTable = (
     });
 
     // Obtener el valor de la columna base de cálculo (siempre el índice 7)
-    // Es importante parsear correctamente si el valor de la celda de origen también está formateado
-    // const baseCalcValue =
-    //   baseCalcColIndex !== -1 &&
-    //   !isNaN(parseFormattedNumber(row[baseCalcColIndex]))
-    //     ? parseFormattedNumber(row[baseCalcColIndex])
-    //     : 0;
-
     const baseCalcValue =
       baseCalcColIndex !== -1 && !isNaN(parseFloat(row[baseCalcColIndex]))
         ? parseFloat(row[baseCalcColIndex])
         : 0;
 
-    console.log(
-      "Fila:",
-      row,
-      " | Valor columna base (índice 7):",
-      row[baseCalcColIndex],
-      " | baseCalcValue parseado:",
-      baseCalcValue
-    );
-
     const salTd = document.createElement("td");
     const input = document.createElement("input");
     input.type = "text";
-    input.className = "form-control text-end col-sal";
+    input.className = "form-control text-end col-sal sal-input"; // Se añadió la clase 'sal-input'
     input.value = "0"; // Valor inicial del porcentaje SAL
+    input.setAttribute("data-base-value", baseCalcValue); // Almacenar el valor base para fácil acceso
     salTd.appendChild(input);
 
     const salImportoTd = document.createElement("td");
-    salImportoTd.className = "text-end";
+    salImportoTd.className = "text-end sal-importo"; // Se añadió la clase 'sal-importo'
     salImportoTd.textContent = "0,00"; // Valor inicial del importe SAL (formato it-IT)
 
     const finirePercentTd = document.createElement("td");
@@ -436,10 +424,6 @@ const createAndAppendTable = (
       val = isNaN(val) ? 0 : val; // No limitar a 100 aquí, la validación visual lo hará
 
       input.value = val; // Actualiza el valor del input con el número parseado
-      //prueba***************************************************
-      console.log(input.value);
-      console.log(typeof val);
-      console.log("Input SAL %:", input.value, " | Valor parseado 'val':", val);
 
       // **Validación visual para el SAL% individual**
       if (val > 100 || val < 0) {
@@ -479,7 +463,7 @@ const createAndAppendTable = (
   totalRow.classList.add("total-row", "table-info");
 
   // Crear celdas para la fila de totales (ahora una más para el SAL% total)
-  // `tableHeaders.length + 4` cubre las columnas originales + SAL%, Importo SAL, A FINIRE %, Importo A FINIRE
+  // tableHeaders.length + 4 cubre las columnas originales + SAL%, Importo SAL, A FINIRE %, Importo A FINIRE
   for (let i = 0; i < tableHeaders.length + 4; i++) {
     totalRow.appendChild(document.createElement("td"));
   }
@@ -488,44 +472,7 @@ const createAndAppendTable = (
   updateTableTotals(); // Calcular y mostrar los totales iniciales de la tabla
 };
 
-// PDF GENERATOR
-
-document.getElementById("printPdfBtn").addEventListener("click", function () {
-  const pdfGen = new PdfGenerator(); // Instancia de tu clase PdfGenerator
-
-  const firstTableElement = document.querySelector(
-    "#tableContainer .table-wrapper table"
-  );
-  if (!firstTableElement) {
-    alert(
-      "No hay tablas generadas para imprimir. Carga un archivo Excel primero."
-    );
-    return;
-  }
-  const firstTableHtmlHeaders = Array.from(
-    firstTableElement.querySelectorAll("thead th")
-  ).map((th) => th.textContent.trim());
-
-  // Definir las columnas a incluir en el PDF (índices de las cabeceras HTML)
-  // Se incluyen las columnas originales hasta la 7, más las SAL
-  const columnsToInclude = [0, 1, 2, 3, 4, 5, 6, 7];
-
-  const salPercentIndex = firstTableHtmlHeaders.indexOf("SAL %");
-  const importoSalIndex = firstTableHtmlHeaders.indexOf("Importo SAL");
-  const finirePercentIndex = firstTableHtmlHeaders.indexOf("A FINIRE %");
-  const finireImportoIndex = firstTableHtmlHeaders.indexOf("Importo A FINIRE");
-
-  if (salPercentIndex !== -1) columnsToInclude.push(salPercentIndex);
-  if (importoSalIndex !== -1) columnsToInclude.push(importoSalIndex);
-  if (finirePercentIndex !== -1) columnsToInclude.push(finirePercentIndex);
-  if (finireImportoIndex !== -1) columnsToInclude.push(finireImportoIndex);
-
-  pdfGen.generatePdf(
-    "tableContainer",
-    columnsToInclude,
-    "Reporte_Proyecto_SAL.pdf"
-  );
-});
+// Generador de Tabla Resumen
 
 /**
  * Genera y añade la tabla de resumen de totales SAL de todas las secciones.
@@ -544,7 +491,7 @@ const generateSummaryTable = () => {
 
   const summaryTableWrapper = document.createElement("div");
   summaryTableWrapper.id = "summaryTableWrapper"; // ID para facilitar su eliminación y actualización
-  summaryTableWrapper.className = "mt-5 mb-5"; // Clases para añadir margen
+  summaryTableWrapper.className = "mt-2 mb-2"; // Clases para añadir margen
 
   const summaryTitle = document.createElement("h3");
   summaryTitle.textContent = "Resumen de Importes SAL por Sección";
@@ -608,3 +555,167 @@ const generateSummaryTable = () => {
   summaryTableWrapper.appendChild(summaryTable);
   container.appendChild(summaryTableWrapper); // Añadir la tabla de resumen al contenedor principal
 };
+
+// Nueva Funcionalidad: Crear Tablas SAL Copia
+
+/**
+ * Crea y añade una nueva tabla que contiene solo las columnas 'SAL %' e 'Importo SAL',
+ * conservando la estructura original y los valores de las tablas principales.
+ * Cada nueva tabla tendrá un título como "SAL 1", "SAL 2", etc.
+ */
+document.getElementById("tabla-sal").addEventListener("click", function () {
+  salTableCounter++; // Incrementar el contador para la nueva tabla SAL
+  const newTableTitle = `SAL ${salTableCounter}`;
+  const container = document.getElementById("tableContainer");
+
+  const salTableWrapper = document.createElement("div");
+  salTableWrapper.className = "table-wrapper sal-copy-table-wrapper"; // Añadir una clase específica para estilos
+  salTableWrapper.id = `sal-copy-table-${salTableCounter}`; // ID único para cada tabla SAL copia
+
+  const title = document.createElement("h4");
+  title.textContent = newTableTitle;
+  salTableWrapper.appendChild(title);
+
+  const newSalTable = document.createElement("table");
+  newSalTable.className = "table table-bordered table-sm mb-1 sal-copy-table";
+
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+
+  // Cabeceras para la nueva tabla de copia SAL
+  ["Sección", "SAL %", "Importo SAL"].forEach((name) => {
+    const th = document.createElement("th");
+    th.textContent = name;
+    if (name === "Importo SAL") th.classList.add("text-end");
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  newSalTable.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  newSalTable.appendChild(tbody);
+  salTableWrapper.appendChild(newSalTable);
+  // Añadir la nueva tabla al contenedor principal. Puedes ajustar el orden si quieres.
+  container.appendChild(salTableWrapper);
+
+  // Poblar la nueva tabla SAL
+  // Iterar sobre cada 'table-wrapper' existente (que contiene las tablas detalladas originales)
+  document
+    .querySelectorAll(
+      "#tableContainer .table-wrapper:not(.sal-copy-table-wrapper)"
+    )
+    .forEach((originalTableWrapper) => {
+      const originalTable = originalTableWrapper.querySelector("table");
+      const originalTbody = originalTable.querySelector("tbody");
+      // Obtener el título de la sección original desde el atributo de datos
+      const originalSectionTitle =
+        originalTable.getAttribute("data-section-title") || "Sin Título";
+
+      originalTbody
+        .querySelectorAll("tr:not(.total-row)")
+        .forEach((originalRow) => {
+          const newRow = document.createElement("tr");
+
+          // Obtener celdas de la fila original
+          const originalCells = originalRow.querySelectorAll("td");
+          // Calcular la longitud de las cabeceras originales para encontrar las columnas SAL
+          const originalHeadersLength =
+            originalTable.querySelector("thead tr").children.length - 4; // Menos las 4 columnas SAL añadidas
+
+          // 1. Añadir celda de Título de Sección
+          const sectionTitleTd = document.createElement("td");
+          sectionTitleTd.textContent = originalSectionTitle;
+          newRow.appendChild(sectionTitleTd);
+
+          // 2. Obtener el valor de SAL % del input en la tabla original
+          const originalSalInput =
+            originalCells[originalHeadersLength]?.querySelector(
+              "input.sal-input"
+            );
+          const salPercentValue = originalSalInput
+            ? originalSalInput.value
+            : "0";
+          const salPercentTd = document.createElement("td");
+          salPercentTd.textContent = `${parseFloat(salPercentValue).toFixed(
+            2
+          )}%`;
+          salPercentTd.classList.add("text-end");
+          newRow.appendChild(salPercentTd);
+
+          // 3. Obtener el valor de Importo SAL de la tabla original
+          const salImportoValue =
+            originalCells[originalHeadersLength + 1]?.textContent;
+          const salImportoTd = document.createElement("td");
+          salImportoTd.textContent = salImportoValue || "0,00";
+          salImportoTd.classList.add("text-end");
+          newRow.appendChild(salImportoTd);
+
+          tbody.appendChild(newRow);
+        });
+
+      // Añadir una fila de total para esta sección en la nueva tabla SAL copia
+      const totalOriginalRow = originalTbody.querySelector(".total-row");
+      if (totalOriginalRow) {
+        const newTotalRow = document.createElement("tr");
+        newTotalRow.classList.add(
+          "table-info",
+          "fw-bold",
+          "sal-copy-total-row"
+        );
+
+        const originalHeadersLength =
+          originalTable.querySelector("thead tr").children.length - 4;
+
+        const totalLabelTd = document.createElement("td");
+        totalLabelTd.textContent = `${originalSectionTitle} Total:`;
+        newTotalRow.appendChild(totalLabelTd);
+
+        const totalSalPercentTd = document.createElement("td");
+        const originalTotalSalPercentText =
+          totalOriginalRow.children[originalHeadersLength]?.textContent;
+        totalSalPercentTd.textContent = originalTotalSalPercentText || "0,00%";
+        totalSalPercentTd.classList.add("text-end");
+        newTotalRow.appendChild(totalSalPercentTd);
+
+        const totalImportoSalTd = document.createElement("td");
+        const originalTotalImportoSalText =
+          totalOriginalRow.children[originalHeadersLength + 1]?.textContent;
+        totalImportoSalTd.textContent = originalTotalImportoSalText || "0,00";
+        totalImportoSalTd.classList.add("text-end");
+        newTotalRow.appendChild(totalImportoSalTd);
+
+        tbody.appendChild(newTotalRow);
+      }
+    });
+
+  // Añadir una fila de gran total final para esta nueva tabla SAL copia
+  const finalGrandTotalRow = document.createElement("tr");
+  finalGrandTotalRow.classList.add("table-primary", "fw-bold");
+
+  const grandTotalLabelTd = document.createElement("td");
+  grandTotalLabelTd.textContent = "TOTAL GLOBAL SAL:";
+  grandTotalLabelTd.colSpan = 1;
+  finalGrandTotalRow.appendChild(grandTotalLabelTd);
+
+  const grandTotalPercentTd = document.createElement("td");
+  // Aquí, la suma de porcentajes SAL de todas las secciones puede no ser significativa
+  // a menos que sea una media ponderada o similar. Por ahora, se deja vacío.
+  grandTotalPercentTd.textContent = "";
+  finalGrandTotalRow.appendChild(grandTotalPercentTd);
+
+  const grandTotalValueTd = document.createElement("td");
+  const totalSummaryTable = document.getElementById("summaryTableWrapper");
+  if (totalSummaryTable) {
+    const lastRow = totalSummaryTable.querySelector("tbody tr:last-child");
+    if (lastRow && lastRow.children.length > 1) {
+      // Obtener el gran total del "Resumen de Importes SAL por Sección"
+      grandTotalValueTd.textContent = lastRow.children[1].textContent;
+    }
+  } else {
+    grandTotalValueTd.textContent = "0,00";
+  }
+  grandTotalValueTd.classList.add("text-end");
+  finalGrandTotalRow.appendChild(grandTotalValueTd);
+
+  tbody.appendChild(finalGrandTotalRow);
+});
