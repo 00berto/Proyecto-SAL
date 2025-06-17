@@ -1,0 +1,140 @@
+/* styles.css */
+
+body {
+    margin: 0;
+    padding: 0;
+    /* Considera añadir un background-color si quieres un fondo ligero en toda la página */
+    /* background-color: #f8f9fa; */
+}
+
+/* Contenedor principal de las tablas - usa flexbox para la disposición */
+#tableContainer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.tabla-scale {
+    transform: scale(0.5);
+    transform-origin: top left;
+    flex: 1;
+}
+
+/* Estilos para el contenedor individual de cada tabla (original y SAL) */
+.table-wrapper {
+    /* --- PROPIEDADES CRÍTICAS PARA LA VISIBILIDAD Y EL BOX MODEL --- */
+    padding: 15px;
+    margin-bottom: 1rem;
+    /* --- GESTIÓN DE LA ESCALA VISUAL Y COMPENSACIÓN DE ESPACIO --- */
+
+}
+
+#salCopiesContainer {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+/* Estilos para el título dentro de cada table-wrapper */
+.table-wrapper h4 {
+    margin-bottom: 1rem;
+    /* Espacio debajo del título */
+    color: #0d6efd;
+    /* Color azul de Bootstrap primary */
+    border-bottom: 2px solid #0d6efd;
+    /* Línea debajo del título */
+    padding-bottom: 5px;
+    /* Espacio entre el texto del título y la línea */
+}
+
+/* Estilos específicos para el contenedor de las tablas SAL copiadas */
+.sal-copy-table-wrapper {
+    border: 2px dashed #007bff;
+    /* Borde punteado azul para distinguirlas de las originales */
+    background-color: #f8f9fa;
+    /* Fondo ligeramente gris para las tablas SAL */
+}
+
+/* Estilos para la cabecera de la tabla */
+.table-bordered {
+    border-color: #ced4da;
+    /* Color del borde de la tabla */
+}
+
+.table-bordered th,
+.table-bordered td {
+    border-color: #ced4da;
+    /* Color del borde de las celdas */
+}
+
+/* Estilos para tablas con tamaño pequeño (Bootstrap .table-sm) */
+.table-sm th,
+.table-sm td {
+    padding: 0.3rem;
+    /* Menor padding para celdas más compactas */
+}
+
+/* Estilos específicos para la cabecera de las tablas SAL copiadas */
+.sal-copy-table th {
+    background-color: #e9ecef;
+    /* Fondo de cabecera más oscuro para SAL */
+    color: #343a40;
+}
+
+/* Estilos para inputs de porcentaje SAL */
+.form-control.col-sal {
+    width: 80px;
+    /* Ancho específico para el input SAL % */
+    display: inline-block;
+    /* Permite que el input esté en línea con otros elementos */
+}
+
+/* Alineación de texto a la derecha (para números) */
+td.text-end {
+    text-align: right;
+}
+
+/* Estilo para la fila de totales */
+.total-row {
+    font-weight: bold;
+    background-color: #e9ecef;
+    /* Fondo gris más oscuro */
+    color: #495057;
+}
+
+/* Estilo para la fila de totales en las tablas SAL copiadas */
+.sal-copy-total-row {
+    background-color: #e2f0fd !important;
+    /* Fondo azul claro para filas de total SAL */
+    color: #004085;
+}
+
+/* Estilo para el selector de columna de total */
+.total-col-select {
+    width: 150px;
+    /* Ancho para el select */
+    margin-left: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Estilo para inputs de SAL% que excedan 100% o sean negativos */
+.sal-input.is-invalid {
+    border-color: #dc3545 !important;
+    padding-right: calc(1.5em + 0.75rem) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right calc(0.375em + 0.1875rem) center !important;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+}
+
+.sal-input:focus.is-invalid {
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.table-danger {
+    background-color: #f8d7da !important;
+    /* Resalta toda la celda si el SAL% es inválido */
+}

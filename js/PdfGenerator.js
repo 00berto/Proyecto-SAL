@@ -1,74 +1,53 @@
-// js/PdfGenerator.js (Ejemplo adaptado para html2pdf.js)
+// js/PdfGenerator.js
+
 class PdfGenerator {
   /**
-   * Genera un PDF a partir de uno o varios elementos HTML.
-   * @param {HTMLElement|HTMLElement[]} elementsOrIds - Un elemento HTML, su ID (string), o un array de elementos HTML (o sus IDs).
-   * @param {number[]} [columnsToInclude=[]] - Índices de las columnas a incluir si se procesa una tabla directa. (Puede que necesite lógica más compleja si los tipos de tabla son variados).
-   * @param {string} fileName - Nombre del archivo PDF.
+   * Genera un PDF a partir de una lista de elementos de tabla (wrappers).
+   * @param {HTMLElement[]} tableElementsToPrint Un array de elementos div.table-wrapper a imprimir.
+   * @param {string} filename El nombre del archivo PDF a generar.
    */
-  generatePdf(elementsOrIds, columnsToInclude = [], fileName) {
-    let elements = [];
-
-    if (Array.isArray(elementsOrIds)) {
-      elements = elementsOrIds
-        .map((el) =>
-          typeof el === "string" ? document.getElementById(el) : el
-        )
-        .filter(Boolean);
-    } else if (typeof elementsOrIds === "string") {
-      elements.push(document.getElementById(elementsOrIds));
-    } else if (elementsOrIds instanceof HTMLElement) {
-      elements.push(elementsOrIds);
-    }
-
-    if (elements.length === 0) {
-      console.warn("No hay elementos válidos para generar el PDF.");
-      alert("No hay tablas seleccionadas para imprimir.");
-      return;
-    }
-
-    // Crear un contenedor temporal para todas las tablas
+  static async generatePdf(tableElementsToPrint, filename) {
     const tempContainer = document.createElement("div");
-    tempContainer.style.width = "fit-content"; // Ajustar ancho al contenido
-    tempContainer.style.margin = "0 auto"; // Centrar
-    tempContainer.style.padding = "10mm"; // Un poco de padding
+    tempContainer.style.width = "100%";
+    tempContainer.style.padding = "10px";
+    tempContainer.style.boxSizing = "border-box";
 
-    elements.forEach((el) => {
-      // Clonar el elemento para no afectar el DOM original
-      const clonedEl = el.cloneNode(true);
+    tableElementsToPrint.forEach((tableWrapper) => {
+      // Clonamos directamente el elemento wrapper de la tabla
+      const clonedTableWrapper = tableWrapper.cloneNode(true);
 
-      // Eliminar los inputs SAL % para que no aparezcan en el PDF
-      clonedEl.querySelectorAll(".sal-input").forEach((input) => {
-        input.parentNode.textContent = input.value + "%"; // Reemplazar input con su valor
-      });
-      // Asegurar que las columnas 'A FINIRE %' y 'Importo A FINIRE' no tengan 'input' si no es necesario
+      // Importante: html2pdf trabaja con el DOM, no necesitas la lógica de `selectedSalTableIds` aquí
+      // porque `tableElementsToPrint` ya contiene solo las tablas que se eligieron.
+      // La lógica de selección se maneja en App.js.
 
-      tempContainer.appendChild(clonedEl);
+      // Limpiar inputs (solo para tablas originales con inputs SAL%)
+      clonedTableWrapper
+        .querySelectorAll("input.sal-input")
+        .forEach((input) => {
+          const span = document.createElement("span");
+          span.textContent = input.value;
+          input.parentNode.replaceChild(span, input);
+        });
 
-      // Añadir un salto de página después de cada tabla para que no se superpongan
-      const pageBreak = document.createElement("div");
-      pageBreak.style.pageBreakAfter = "always";
-      tempContainer.appendChild(pageBreak);
+      // ESTILO CRÍTICO PARA EL PDF: Asegurarse de que no haya transformaciones o márgenes raros
+      clonedTableWrapper.style.transform = "none";
+      clonedTableWrapper.style.margin = "0 auto 20px auto"; // Control de margen en el PDF
+      clonedTableWrapper.style.width = "fit-content"; // Ajusta el ancho para que el contenido quepa
+      clonedTableWrapper.style.maxWidth = "100%"; // No exceda el ancho del contenedor del PDF
+
+      tempContainer.appendChild(clonedTableWrapper);
     });
 
-    // Eliminar el último salto de página innecesario
-    if (
-      tempContainer.lastChild &&
-      tempContainer.lastChild.style.pageBreakAfter === "always"
-    ) {
-      tempContainer.removeChild(tempContainer.lastChild);
-    }
-
-    // html2pdf Options
     const opt = {
-      margin: [10, 10, 10, 10], // top, left, bottom, right
-      filename: fileName,
+      margin: [10, 10, 10, 10],
+      filename: filename, // Usamos el nombre de archivo pasado por parámetro
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2, logging: false, useCORS: true },
-      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" }, // o 'portrait'
-      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"] },
     };
 
     html2pdf().from(tempContainer).set(opt).save();
+    tempContainer.remove();
   }
 }
