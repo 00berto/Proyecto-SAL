@@ -240,21 +240,23 @@ class TableRenderer {
       const salTd = document.createElement("td");
       const input = document.createElement("input");
       input.type = "text";
-      input.className = "form-control text-end col-sal sal-input";
+      // input.className = "form-control text-end col-sal sal-input";
+      input.className = "form-control col-sal sal-input";
       input.value = "0";
       input.setAttribute("data-base-value", baseCalcValue);
       salTd.appendChild(input);
 
       const salImportoTd = document.createElement("td");
-      salImportoTd.className = "text-end sal-importo";
+      // salImportoTd.className = "text-end sal-importo";
+      salImportoTd.className = "sal-importo";
       salImportoTd.textContent = "0,00";
 
       const finirePercentTd = document.createElement("td");
-      finirePercentTd.className = "text-end";
-      finirePercentTd.textContent = "100,00%";
+      // finirePercentTd.className = "text-end";
+      finirePercentTd.textContent = "%";
 
       const finireImportoTd = document.createElement("td");
-      finireImportoTd.className = "text-end";
+      // finireImportoTd.className = "text-end";
       finireImportoTd.textContent = baseCalcValue.toLocaleString("it-IT", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
@@ -280,6 +282,7 @@ class TableRenderer {
           { minimumFractionDigits: 2, maximumFractionDigits: 2 }
         );
         finirePercentTd.textContent = ((1 - percent) * 100).toFixed(2) + "%";
+        
         finireImportoTd.textContent = (
           baseCalcValue *
           (1 - percent)
