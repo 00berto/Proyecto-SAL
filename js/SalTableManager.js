@@ -336,7 +336,7 @@ class SalTableManager {
       const prevVal = this._parseNumber(prevCell.textContent);
       const currVal = this._parseNumber(currCell.textContent);
 
-      if (currVal > prevVal + 0.001) {
+      if ( prevVal > currVal + 0.001) {
         currCell.classList.add("table-warning");
         currCell.title = "Controllare Valore % inserito";
         currCell.style.cursor = "help";

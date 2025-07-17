@@ -48,8 +48,8 @@ class SalTableManager {
     this.container.appendChild(salTableWrapper);
 
     this._populateSalTable(tbody);
-
     this._addSalTableCheckbox(salTableId, newTableTitle);
+    this._validateSalRowsBetweenTables();
   }
 
   deleteLastSalTable() {
@@ -236,6 +236,48 @@ class SalTableManager {
 
     tbody.appendChild(finalGrandTotalRow);
   }
+
+_validateSalRowsBetweenTables() {
+  const tables = this.generatedSalTables;
+  if (tables.length < 2) return;
+
+  const prevTable = tables[tables.length - 2].element.querySelector("table");
+  const currTable = tables[tables.length - 1].element.querySelector("table");
+
+  if (!prevTable || !currTable) return;
+
+  const prevRows = Array.from(prevTable.querySelectorAll("tbody tr"))
+    .filter(tr => tr.children.length >= 2 && !tr.classList.contains("total-row"));
+
+  const currRows = Array.from(currTable.querySelectorAll("tbody tr"))
+    .filter(tr => tr.children.length >= 2 && !tr.classList.contains("total-row"));
+
+  const rowCount = Math.min(prevRows.length, currRows.length);
+
+  for (let i = 0; i < rowCount; i++) {
+    const prevCell = prevRows[i].children[1]; // Importo SAL
+    const currCell = currRows[i].children[1];
+
+    if (!prevCell || !currCell) continue;
+
+    const prevVal = this._parseNumber(prevCell.textContent);
+    const currVal = this._parseNumber(currCell.textContent);
+
+    if (currVal > prevVal + 0.001) {
+      currCell.classList.add("table-warning");
+      currCell.title = "Controllare Valore % inserito";
+    } else {
+      currCell.classList.remove("table-warning");
+      currCell.title = "";
+    }
+  }
+}
+
+_parseNumber(str) {
+  return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+}
+
+
 
   _addSalTableCheckbox(id, title) {
     const checkboxDiv = document.createElement("div");
