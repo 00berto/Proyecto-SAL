@@ -149,7 +149,7 @@ class TableRenderer {
 
         const salInput = cells[tableHeaders.length].querySelector("input");
         if (salInput) {
-          totalSalPercent += parseFloat(salInput.value) || 0;
+          totalSalPercent += parseFloat(salInput.value) || 0; //sal input
         }
       });
 
