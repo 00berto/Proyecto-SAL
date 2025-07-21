@@ -51,7 +51,6 @@ class SalTableManager {
     this._addSalTableCheckbox(salTableId, newTableTitle);
     this._validateSalRowsBetweenTables();
   }
-
   deleteLastSalTable() {
     if (this.salTableCounter > 0) {
       const lastTableInfo = this.generatedSalTables.pop();
@@ -75,8 +74,11 @@ class SalTableManager {
           this.selectionSection.style.display = "none";
         }
       }
+
+      // Verifica SAL% después de eliminar
+      this._validateSalRowsBetweenTables();
     } else {
-      alert("No hay tablas SAL para eliminar.");
+      alert("Nussuna tabella SAL da eliminare.");
     }
   }
 
@@ -159,12 +161,12 @@ class SalTableManager {
           salPercentTd.textContent = `${salPercentValue.toFixed(2)}%`;
           salPercentTd.classList.add("text-center");
 
-          // Apply table-danger class if there's an error
-          if (isSalPercentError) {
-            salPercentTd.classList.add("table-danger"); // Use Bootstrap's table-danger class
-          } else {
-            salPercentTd.classList.remove("table-danger"); // Ensure class is removed if no error
-          }
+          // Verifica error porcentaje 100%
+          // if (isSalPercentError) {
+          //   salPercentTd.classList.add("table-danger"); // Use Bootstrap's table-danger class
+          // } else {
+          //   salPercentTd.classList.remove("table-danger"); // Ensure class is removed if no error
+          // }
 
           newRow.appendChild(salPercentTd);
 
@@ -192,19 +194,18 @@ class SalTableManager {
           totalOriginalRow.children[totalOriginalRow.children.length - 2]
             ?.textContent;
 
-        // Validation for 100% total row
-        if (isSalPercentError) {
-          totalSalPercentTd.textContent = `${currentSectionSalPercentTotal.toFixed(
-            2
-          )}% (ERROR)`;
-          newTotalRow.classList.add("table-danger"); // Apply table-danger to the total row too
-        } else {
-          totalSalPercentTd.textContent =
-            originalTotalSalPercentText || "0,00%";
-          newTotalRow.classList.remove("table-danger"); // Ensure class is removed
-        }
+        //Validation for 100% total row
+        // if (isSalPercentError) {
+        //   totalSalPercentTd.textContent = `${currentSectionSalPercentTotal.toFixed(
+        //     2
+        //   )}% (ERROR)`;
+        //   newTotalRow.classList.add("table-danger"); // Apply table-danger to the total row too
+        // } else {
+        //   totalSalPercentTd.textContent = originalTotalSalPercentText || "";
+        //   newTotalRow.classList.remove("table-danger"); // Ensure class is removed
+        // }
 
-        totalSalPercentTd.classList.add("text-center");
+        //totalSalPercentTd.classList.add("text-center");
         newTotalRow.appendChild(totalSalPercentTd);
 
         const totalImportoSalTd = document.createElement("td");
@@ -219,65 +220,66 @@ class SalTableManager {
       }
     });
 
-    // Separator and Global SAL Total (no changes)
-    const grandTotalSeparatorRow = document.createElement("tr");
-    const grandTotalSeparatorCell = document.createElement("td");
-    grandTotalSeparatorCell.colSpan = 2;
-    grandTotalSeparatorCell.style.height = "20px";
-    grandTotalSeparatorCell.style.borderTop = "2px dashed #007bff";
-    grandTotalSeparatorCell.style.backgroundColor = "#f0f8ff";
-    grandTotalSeparatorRow.appendChild(grandTotalSeparatorCell);
-    tbody.appendChild(grandTotalSeparatorRow);
+    // // Separator and Global SAL Total (no changes)
+    // const grandTotalSeparatorRow = document.createElement("tr");
+    // const grandTotalSeparatorCell = document.createElement("td");
+    // grandTotalSeparatorCell.colSpan = 2;
+    // grandTotalSeparatorCell.style.height = "20px";
+    // grandTotalSeparatorCell.style.borderTop = "2px dashed #007bff";
+    // grandTotalSeparatorCell.style.backgroundColor = "#f0f8ff";
+    // grandTotalSeparatorRow.appendChild(grandTotalSeparatorCell);
+    // tbody.appendChild(grandTotalSeparatorRow);
 
-    const finalGrandTotalRow = document.createElement("tr");
-    finalGrandTotalRow.classList.add("table-primary", "fw-bold");
+    // const finalGrandTotalRow = document.createElement("tr");
+    // finalGrandTotalRow.classList.add("table-primary", "fw-bold");
 
-    const grandTotalLabelTd = document.createElement("td");
-    grandTotalLabelTd.textContent = "TOTAL GLOBAL SAL:";
-    grandTotalLabelTd.colSpan = 1;
-    finalGrandTotalRow.appendChild(grandTotalLabelTd);
+    // const grandTotalLabelTd = document.createElement("td");
+    // //grandTotalLabelTd.textContent = "TOTAL GLOBAL SAL:";
+    // grandTotalLabelTd.textContent = "";
+    // grandTotalLabelTd.colSpan = 1;
+    // finalGrandTotalRow.appendChild(grandTotalLabelTd);
 
-    const grandTotalValueTd = document.createElement("td");
-    const totalSummaryTable = document.getElementById("summaryTableWrapper");
-    if (totalSummaryTable) {
-      const lastRow = totalSummaryTable.querySelector("tbody tr:last-child");
-      if (lastRow && lastRow.children.length > 1) {
-        grandTotalValueTd.textContent = lastRow.children[1].textContent;
-      }
-    } else {
-      grandTotalValueTd.textContent = "0,00";
-    }
-    grandTotalValueTd.classList.add("text-center");
-    finalGrandTotalRow.appendChild(grandTotalValueTd);
+    // const grandTotalValueTd = document.createElement("td");
+    // const totalSummaryTable = document.getElementById("summaryTableWrapper");
+    // if (totalSummaryTable) {
+    //   const lastRow = totalSummaryTable.querySelector("tbody tr:last-child");
+    //   if (lastRow && lastRow.children.length > 1) {
+    //     grandTotalValueTd.textContent = lastRow.children[1].textContent;
+    //   }
+    // } else {
+    //   grandTotalValueTd.textContent = "0,00";
+    // }
+    // grandTotalValueTd.classList.add("text-center");
+    // finalGrandTotalRow.appendChild(grandTotalValueTd);
 
-    tbody.appendChild(finalGrandTotalRow);
-    this._actualizarSalPercentTotal(tbody);
+    // tbody.appendChild(finalGrandTotalRow);
+    // this._actualizarSalPercentTotal(tbody);
   }
 
-  _actualizarSalPercentTotal(tbody) {
-    const salRows = Array.from(tbody.querySelectorAll("tr")).filter(
-      (tr) =>
-        tr.children.length >= 2 &&
-        !tr.classList.contains("total-row") &&
-        !tr.classList.contains("sal-copy-total-row")
-    );
+  // _actualizarSalPercentTotal(tbody) {
+  //   const salRows = Array.from(tbody.querySelectorAll("tr")).filter(
+  //     (tr) =>
+  //       tr.children.length >= 2 &&
+  //       !tr.classList.contains("total-row") &&
+  //       !tr.classList.contains("sal-copy-total-row")
+  //   );
 
-    let totalSalPercent = 0;
+  //   let totalSalPercent = 0;
 
-    salRows.forEach((row) => {
-      const salCell = row.children[0];
-      const valueStr = salCell?.textContent?.replace("%", "").trim();
-      const value = parseFloat(valueStr.replace(",", ".")) || 0;
-      totalSalPercent += value;
-    });
+  //   salRows.forEach((row) => {
+  //     const salCell = row.children[0];
+  //     const valueStr = salCell?.textContent?.replace("%", "").trim();
+  //     const value = parseFloat(valueStr.replace(",", ".")) || 0;
+  //     totalSalPercent += value;
+  //   });
 
-    const totalRow = tbody.querySelector("tr.sal-copy-total-row");
-    if (totalRow && totalRow.children.length >= 2) {
-      totalRow.children[0].textContent = `${totalSalPercent
-        .toFixed(2)
-        .replace(".", ",")}%`;
-    }
-  }
+  //   const totalRow = tbody.querySelector("tr.sal-copy-total-row");
+  //   if (totalRow && totalRow.children.length >= 2) {
+  //     totalRow.children[0].textContent = `${totalSalPercent
+  //       .toFixed(2)
+  //       .replace(".", ",")}%`;
+  //   }
+  // }
 
   _addSalTableCheckbox(id, title) {
     const checkboxDiv = document.createElement("div");
@@ -307,7 +309,6 @@ class SalTableManager {
       element: document.getElementById(id),
     });
   }
-
   _validateSalRowsBetweenTables() {
     const tables = this.generatedSalTables;
     if (tables.length < 2) return;
@@ -326,17 +327,23 @@ class SalTableManager {
     );
 
     const rowCount = Math.min(prevRows.length, currRows.length);
+    let salPercentTotal = 0;
 
     for (let i = 0; i < rowCount; i++) {
-      const prevCell = prevRows[i].children[1]; // Importo SAL
-      const currCell = currRows[i].children[1];
+      // const prevCell = prevRows[i].children[1];
+      // const currCell = currRows[i].children[1];
+      const prevCell = prevRows[i].children[0];
+      const currCell = currRows[i].children[0];
 
       if (!prevCell || !currCell) continue;
 
       const prevVal = this._parseNumber(prevCell.textContent);
       const currVal = this._parseNumber(currCell.textContent);
 
-      if ( prevVal > currVal + 0.001) {
+      salPercentTotal += currVal;
+
+      // Comparación con la tabla anterior
+      if (prevVal > currVal + 0.001) {
         currCell.classList.add("table-warning");
         currCell.title = "Controllare Valore % inserito";
         currCell.style.cursor = "help";
@@ -346,10 +353,105 @@ class SalTableManager {
         currCell.style.cursor = "default";
       }
     }
+
+    // // Verificar si se supera el 100%
+    // if (salPercentTotal > 100.001) {
+    //   for (let i = 0; i < rowCount; i++) {
+    //     const currCell = currRows[i].children[1];
+    //     currCell.classList.add("table-danger");
+    //     currCell.title = "Totale SAL% supera il 100%";
+    //   }
+    // } else {
+    //   for (let i = 0; i < rowCount; i++) {
+    //     const currCell = currRows[i].children[1];
+    //     currCell.classList.remove("table-danger");
+    //     // No toques el título si hay otra advertencia activa
+    //     if (!currCell.classList.contains("table-warning")) {
+    //       currCell.title = "";
+    //     }
+    //   }
+    // }
+    let totalSalPercentCurrTable = 0;
+    currRows.forEach((row) => {
+      const salPercentCell = row.children[0]; // SAL % celda
+      if (salPercentCell) {
+        const val = this._parseNumber(
+          salPercentCell.textContent.replace("%", "")
+        );
+        totalSalPercentCurrTable += val;
+      }
+    });
+
+    if (
+      totalSalPercentCurrTable > 100.001 ||
+      totalSalPercentCurrTable < -0.001
+    ) {
+      // Error si es >100% o <0%
+      currRows.forEach((row) => {
+        const salPercentCell = row.children[0]; // SAL % celda
+        if (salPercentCell) {
+          salPercentCell.classList.add("table-danger");
+          salPercentCell.title = "Totale SAL% supera il 100%"; // Mensaje para total de columna
+          salPercentCell.style.cursor = "help";
+        }
+      });
+    } else {
+      // Si no hay error en el total de la columna, asegurarse de quitar la clase table-danger
+      currRows.forEach((row) => {
+        const salPercentCell = row.children[0];
+        if (salPercentCell) {
+          salPercentCell.classList.remove("table-danger");
+          // Si la celda no tiene table-warning, quitar también el título
+          if (!salPercentCell.classList.contains("table-warning")) {
+            salPercentCell.removeAttribute("title");
+            salPercentCell.style.cursor = "default";
+          }
+        }
+      });
+    }
+
+    // Verificar si se supera el 100% por fila (horizontalmente)
+    for (let i = 0; i < rowCount; i++) {
+      let totalPerRow = 0;
+      for (let t = 0; t < tables.length; t++) {
+        const tableElement = tables[t].element.querySelector("table");
+        const row = tableElement?.querySelectorAll("tbody tr")[i];
+        if (!row || row.children.length < 2) continue;
+        const cell = row.children[0]; // SAL %
+        const val = this._parseNumber(cell.textContent.replace("%", ""));
+        totalPerRow += val;
+      }
+
+      const currCell = currRows[i].children[0]; // SAL %
+      if (totalPerRow > 100.001) {
+        console.log(`Fila ${i}: totalPerRow = ${totalPerRow}`);
+        currCell.classList.add("table-danger");
+        currCell.title = "Somma SAL% supera il 100%";
+        currCell.style.cursor = "help";
+      } else {
+        currCell.classList.remove("table-danger");
+        if (!currCell.classList.contains("table-warning")) {
+          currCell.title = "";
+        }
+      }
+      //console.log(`Fila ${i}: totalPerRow = ${totalPerRow}`);
+    }
   }
 
+  // _parseNumber(str) {
+  //   return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+  // }
   _parseNumber(str) {
-    return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+    if (!str) return 0;
+    str = str.trim();
+
+    // Si tiene coma, asumimos formato europeo y lo convertimos
+    if (str.includes(",")) {
+      return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+    }
+
+    // Si no tiene coma, asumimos que ya viene como número JS válido
+    return parseFloat(str) || 0;
   }
 
   reset() {

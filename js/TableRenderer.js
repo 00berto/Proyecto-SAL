@@ -172,16 +172,18 @@ class TableRenderer {
           }
         });
 
-        if (totalCells[tableHeaders.length]) {
-          totalCells[
-            tableHeaders.length
-          ].textContent = `${totalSalPercent.toFixed(2)}%`;
-          if (totalSalPercent > 100) {
-            totalCells[tableHeaders.length].classList.add("table-danger");
-          } else {
-            totalCells[tableHeaders.length].classList.remove("table-danger");
-          }
-        }
+        //logica verifica total SAL%
+
+        // if (totalCells[tableHeaders.length]) {
+        //   totalCells[
+        //     tableHeaders.length
+        //   ].textContent = `${totalSalPercent.toFixed(2)}%`;
+        //   // if (totalSalPercent > 100) {
+        //   totalCells[tableHeaders.length].classList.add("table-danger");
+        // } else {
+        //   totalCells[tableHeaders.length].classList.remove("table-danger");
+        // }
+        //}
 
         if (totalCells[tableHeaders.length + 1])
           totalCells[tableHeaders.length + 1].textContent = tempTotals[
@@ -269,11 +271,11 @@ class TableRenderer {
         input.value = val;
 
         if (val > 100 || val < 0) {
-          input.classList.add("is-invalid");
-          salTd.classList.add("table-danger");
+          //input.classList.add("is-invalid");
+          //salTd.classList.add("table-danger");
         } else {
-          input.classList.remove("is-invalid");
-          salTd.classList.remove("table-danger");
+          //input.classList.remove("is-invalid");
+          //salTd.classList.remove("table-danger");
         }
 
         const percent = val / 100;
@@ -282,7 +284,7 @@ class TableRenderer {
           { minimumFractionDigits: 2, maximumFractionDigits: 2 }
         );
         finirePercentTd.textContent = ((1 - percent) * 100).toFixed(2) + "%";
-        
+
         finireImportoTd.textContent = (
           baseCalcValue *
           (1 - percent)
