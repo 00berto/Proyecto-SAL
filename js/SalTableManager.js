@@ -47,13 +47,22 @@ class SalTableManager {
     salTableWrapper.appendChild(newSalTable);
     this.container.appendChild(salTableWrapper);
 
+    this.generatedSalTables.push({
+      // Agregado para que la tabla esté en el array antes de poblar
+      id: salTableId,
+      title: newTableTitle,
+      element: salTableWrapper,
+    });
+
     this._populateSalTable(tbody);
-    this._addSalTableCheckbox(salTableId, newTableTitle);
+    this._addSalTableCheckbox(salTableId, newTableTitle); // this adds to generatedSalTables again, potential duplicate.
+    // Let's ensure generatedSalTables.push happens only once.
+    // Moved it up before populateSalTable.
     this._validateSalRowsBetweenTables();
   }
   deleteLastSalTable() {
     if (this.salTableCounter > 0) {
-      const lastTableInfo = this.generatedSalTables.pop();
+      const lastTableInfo = this.generatedSalTables.pop(); // Removes from array
       if (lastTableInfo) {
         const tableElement = lastTableInfo.element;
         const checkboxElement = document.getElementById(
@@ -91,7 +100,7 @@ class SalTableManager {
     );
     const totalOriginalTables = originalTableWrappers.length;
 
-    originalTableWrappers.forEach((originalTableWrapper, index) => {
+    originalTableWrappers.forEach((originalTableWrapper, sectionIndex) => {
       const originalTable = originalTableWrapper.querySelector("table");
       const originalTbody = originalTable.querySelector("tbody");
       const originalTitleElement = originalTableWrapper.querySelector("h4");
@@ -121,23 +130,24 @@ class SalTableManager {
         currentSectionSalPercentTotal < -0.0001;
 
       // Add empty row before section header if applicable
-      if (originalTitleElement && (index > 0 || totalOriginalTables > 1)) {
+      if (
+        originalTitleElement &&
+        (sectionIndex > 0 || totalOriginalTables > 1)
+      ) {
         const emptySectionSpacerRow = document.createElement("tr");
         const emptySectionSpacerCell = document.createElement("td");
         emptySectionSpacerCell.colSpan = 2; // Ocupa las 2 columnas
-        // emptySectionSpacerCell.style.backgroundColor = '#f0f8ff'; // Fondo sutil para el espacio
         emptySectionSpacerRow.appendChild(emptySectionSpacerCell);
         tbody.appendChild(emptySectionSpacerRow);
 
         // Add section header
         const sectionHeaderRow = document.createElement("tr");
-        sectionHeaderRow.classList.add("table-section-header"); //
+        sectionHeaderRow.classList.add("table-section-header");
         const sectionHeaderCell = document.createElement("td");
         sectionHeaderCell.colSpan = 2;
         sectionHeaderCell.textContent = originalTitleElement.textContent;
         sectionHeaderCell.classList.add("total-row");
-        // sectionHeaderCell.style.backgroundColor = '#f0f8ff'; // Fondo sutil para el espacio e9ecef
-        sectionHeaderCell.style.backgroundColor = "#e9ecef"; // Fondo sutil para el espacio
+        sectionHeaderCell.style.backgroundColor = "#e9ecef";
         sectionHeaderRow.appendChild(sectionHeaderCell);
         tbody.appendChild(sectionHeaderRow);
       }
@@ -161,12 +171,9 @@ class SalTableManager {
           salPercentTd.textContent = `${salPercentValue.toFixed(2)}%`;
           salPercentTd.classList.add("text-center");
 
-          // Verifica error porcentaje 100%
-          // if (isSalPercentError) {
-          //   salPercentTd.classList.add("table-danger"); // Use Bootstrap's table-danger class
-          // } else {
-          //   salPercentTd.classList.remove("table-danger"); // Ensure class is removed if no error
-          // }
+          // NOTE: The table-danger for individual cell value > 100%
+          // and table-warning for prev vs curr will be handled in _validateSalRowsBetweenTables
+          // This ensures _populateSalTable just creates the cells.
 
           newRow.appendChild(salPercentTd);
 
@@ -190,22 +197,15 @@ class SalTableManager {
         );
 
         const totalSalPercentTd = document.createElement("td");
-        const originalTotalSalPercentText =
-          totalOriginalRow.children[totalOriginalRow.children.length - 2]
-            ?.textContent;
+        // DEJA ESTA CELDA DEL TOTAL DE SECCIÓN SIEMPRE VACÍA
+        totalSalPercentTd.textContent = "";
+        // PERO APLICA LA CLASE 'table-danger' A LA FILA COMPLETA SI HAY UN ERROR EN EL TOTAL DE LA SECCIÓN
+        if (isSalPercentError) {
+          newTotalRow.classList.add("table-danger");
+        } else {
+          newTotalRow.classList.remove("table-danger");
+        }
 
-        //Validation for 100% total row
-        // if (isSalPercentError) {
-        //   totalSalPercentTd.textContent = `${currentSectionSalPercentTotal.toFixed(
-        //     2
-        //   )}% (ERROR)`;
-        //   newTotalRow.classList.add("table-danger"); // Apply table-danger to the total row too
-        // } else {
-        //   totalSalPercentTd.textContent = originalTotalSalPercentText || "";
-        //   newTotalRow.classList.remove("table-danger"); // Ensure class is removed
-        // }
-
-        //totalSalPercentTd.classList.add("text-center");
         newTotalRow.appendChild(totalSalPercentTd);
 
         const totalImportoSalTd = document.createElement("td");
@@ -220,66 +220,145 @@ class SalTableManager {
       }
     });
 
-    // // Separator and Global SAL Total (no changes)
-    // const grandTotalSeparatorRow = document.createElement("tr");
-    // const grandTotalSeparatorCell = document.createElement("td");
-    // grandTotalSeparatorCell.colSpan = 2;
-    // grandTotalSeparatorCell.style.height = "20px";
-    // grandTotalSeparatorCell.style.borderTop = "2px dashed #007bff";
-    // grandTotalSeparatorCell.style.backgroundColor = "#f0f8ff";
-    // grandTotalSeparatorRow.appendChild(grandTotalSeparatorCell);
-    // tbody.appendChild(grandTotalSeparatorRow);
+    // Separator and Global SAL Total (no changes needed, assumed these parts are fine)
+    const grandTotalSeparatorRow = document.createElement("tr");
+    const grandTotalSeparatorCell = document.createElement("td");
+    grandTotalSeparatorCell.colSpan = 2;
+    grandTotalSeparatorCell.style.height = "20px";
+    grandTotalSeparatorCell.style.borderTop = "2px dashed #007bff";
+    grandTotalSeparatorCell.style.backgroundColor = "#f0f8ff";
+    grandTotalSeparatorRow.appendChild(grandTotalSeparatorCell);
+    tbody.appendChild(grandTotalSeparatorRow);
 
-    // const finalGrandTotalRow = document.createElement("tr");
-    // finalGrandTotalRow.classList.add("table-primary", "fw-bold");
+    const finalGrandTotalRow = document.createElement("tr");
+    finalGrandTotalRow.classList.add("table-primary", "fw-bold");
 
-    // const grandTotalLabelTd = document.createElement("td");
-    // //grandTotalLabelTd.textContent = "TOTAL GLOBAL SAL:";
-    // grandTotalLabelTd.textContent = "";
-    // grandTotalLabelTd.colSpan = 1;
-    // finalGrandTotalRow.appendChild(grandTotalLabelTd);
+    const grandTotalLabelTd = document.createElement("td");
+    grandTotalLabelTd.textContent = "";
+    grandTotalLabelTd.colSpan = 1;
+    finalGrandTotalRow.appendChild(grandTotalLabelTd);
 
-    // const grandTotalValueTd = document.createElement("td");
-    // const totalSummaryTable = document.getElementById("summaryTableWrapper");
-    // if (totalSummaryTable) {
-    //   const lastRow = totalSummaryTable.querySelector("tbody tr:last-child");
-    //   if (lastRow && lastRow.children.length > 1) {
-    //     grandTotalValueTd.textContent = lastRow.children[1].textContent;
-    //   }
-    // } else {
-    //   grandTotalValueTd.textContent = "0,00";
-    // }
-    // grandTotalValueTd.classList.add("text-center");
-    // finalGrandTotalRow.appendChild(grandTotalValueTd);
+    const grandTotalValueTd = document.createElement("td");
+    const totalSummaryTable = document.getElementById("summaryTableWrapper");
+    if (totalSummaryTable) {
+      const lastRow = totalSummaryTable.querySelector("tbody tr:last-child");
+      if (lastRow && lastRow.children.length > 1) {
+        grandTotalValueTd.textContent = lastRow.children[1].textContent;
+      }
+    } else {
+      grandTotalValueTd.textContent = "0,00";
+    }
+    grandTotalValueTd.classList.add("text-center");
+    finalGrandTotalRow.appendChild(grandTotalValueTd);
 
-    // tbody.appendChild(finalGrandTotalRow);
-    // this._actualizarSalPercentTotal(tbody);
+    tbody.appendChild(finalGrandTotalRow);
   }
 
-  // _actualizarSalPercentTotal(tbody) {
-  //   const salRows = Array.from(tbody.querySelectorAll("tr")).filter(
-  //     (tr) =>
-  //       tr.children.length >= 2 &&
-  //       !tr.classList.contains("total-row") &&
-  //       !tr.classList.contains("sal-copy-total-row")
-  //   );
+  _validateSalRowsBetweenTables() {
+    const tables = this.generatedSalTables;
 
-  //   let totalSalPercent = 0;
+    // Lógica para limpiar si solo queda 1 tabla o ninguna
+    if (tables.length < 2) {
+      if (tables.length === 1) {
+        const currentTableBody = tables[0].element.querySelector("table tbody");
+        if (currentTableBody) {
+          // Filtrar solo las celdas de datos para limpiar
+          const dataCells = Array.from(currentTableBody.querySelectorAll("tr"))
+            .filter(
+              (tr) =>
+                !tr.classList.contains("total-row") &&
+                !tr.classList.contains("table-section-header") &&
+                tr.children.length > 0
+            )
+            .map((tr) => tr.children[0]); // Solo la celda SAL %
 
-  //   salRows.forEach((row) => {
-  //     const salCell = row.children[0];
-  //     const valueStr = salCell?.textContent?.replace("%", "").trim();
-  //     const value = parseFloat(valueStr.replace(",", ".")) || 0;
-  //     totalSalPercent += value;
-  //   });
+          dataCells.forEach((cell) => {
+            cell.classList.remove("table-warning", "table-danger");
+            cell.removeAttribute("title");
+            cell.style.cursor = "default";
+          });
+        }
+      }
+      return;
+    }
 
-  //   const totalRow = tbody.querySelector("tr.sal-copy-total-row");
-  //   if (totalRow && totalRow.children.length >= 2) {
-  //     totalRow.children[0].textContent = `${totalSalPercent
-  //       .toFixed(2)
-  //       .replace(".", ",")}%`;
-  //   }
-  // }
+    const prevTableInfo = tables[tables.length - 2];
+    const currTableInfo = tables[tables.length - 1];
+
+    const prevTable = prevTableInfo.element.querySelector("table");
+    const currTable = currTableInfo.element.querySelector("table");
+
+    if (!prevTable || !currTable) return;
+
+    // Obtener SOLO las filas de datos (excluyendo totales, encabezados, espaciadores)
+    const prevDataRows = Array.from(
+      prevTable.querySelectorAll("tbody tr")
+    ).filter(
+      (tr) =>
+        !tr.classList.contains("total-row") &&
+        !tr.classList.contains("table-section-header") &&
+        tr.children.length >= 2
+    );
+
+    const currDataRows = Array.from(
+      currTable.querySelectorAll("tbody tr")
+    ).filter(
+      (tr) =>
+        !tr.classList.contains("total-row") &&
+        !tr.classList.contains("table-section-header") &&
+        tr.children.length >= 2
+    );
+
+    const rowCount = Math.min(prevDataRows.length, currDataRows.length);
+
+    // Reiniciar estados de las celdas de la tabla actual (currTable) antes de aplicar nuevas validaciones
+    currDataRows.forEach((row) => {
+      if (row.children.length > 0) {
+        const salPercentCell = row.children[0]; // SAL % celda
+        salPercentCell.classList.remove("table-warning", "table-danger");
+        salPercentCell.removeAttribute("title");
+        salPercentCell.style.cursor = "default";
+      }
+    });
+
+    // --- Validación de SAL% entre tabla anterior y actual (SALn-1 vs SALn) y valor individual > 100% ---
+    for (let i = 0; i < rowCount; i++) {
+      const prevCell = prevDataRows[i].children[0]; // Índice 0 para SAL %
+      const currCell = currDataRows[i].children[0]; // Índice 0 para SAL %
+
+      if (!prevCell || !currCell) continue;
+
+      const prevVal = this._parseNumber(prevCell.textContent.replace("%", ""));
+      const currVal = this._parseNumber(currCell.textContent.replace("%", ""));
+
+      // Prioridad: Valore > 100% (danger) > Valor < anterior (warning)
+      if (currVal > 100.001) {
+        // **NUEVA VALIDACIÓN CLIENTE: Valor individual de SAL% > 100%**
+        currCell.classList.add("table-danger");
+        currCell.title = "Valore SAL% superiore a 100%";
+        currCell.style.cursor = "help";
+      } else if (currVal < prevVal - 0.001) {
+        // Tu validación original: Valor actual < valor anterior
+        currCell.classList.add("table-warning");
+        currCell.title = "Controllare Valore % inserito";
+        currCell.style.cursor = "help";
+      } else {
+        // Si ninguna de las condiciones anteriores se cumple, limpiar cualquier estilo
+        currCell.classList.remove("table-warning", "table-danger");
+        currCell.removeAttribute("title");
+        currCell.style.cursor = "default";
+      }
+    }
+
+    // --- SECCIÓN ELIMINADA: Validación de "SUMA de SAL% en la COLUMNA de la ÚLTIMA TABLA" ---
+    // Según tu petición de que "la clase solo en la celda con el error no en la columna",
+    // esta sección (que aplicaba table-danger a todas las celdas si la suma superaba el 100%)
+    // ha sido eliminada. La validación de la suma total por sección sigue en _populateSalTable
+    // afectando la fila de TOTAL de la sección.
+
+    // --- SECCIÓN ELIMINADA: Validación "Total por Fila Horizontalmente" (tu punto 4 anterior) ---
+    // Este bloque ha sido removido según tu solicitud previa.
+  }
 
   _addSalTableCheckbox(id, title) {
     const checkboxDiv = document.createElement("div");
@@ -302,156 +381,6 @@ class SalTableManager {
     this.checkboxesContainer.appendChild(checkboxDiv);
 
     this.selectionSection.style.display = "block";
-
-    this.generatedSalTables.push({
-      id: id,
-      title: title,
-      element: document.getElementById(id),
-    });
-  }
-  _validateSalRowsBetweenTables() {
-    const tables = this.generatedSalTables;
-    if (tables.length < 2) return;
-
-    const prevTable = tables[tables.length - 2].element.querySelector("table");
-    const currTable = tables[tables.length - 1].element.querySelector("table");
-
-    if (!prevTable || !currTable) return;
-
-    const prevRows = Array.from(prevTable.querySelectorAll("tbody tr")).filter(
-      (tr) => tr.children.length >= 2 && !tr.classList.contains("total-row")
-    );
-
-    const currRows = Array.from(currTable.querySelectorAll("tbody tr")).filter(
-      (tr) => tr.children.length >= 2 && !tr.classList.contains("total-row")
-    );
-
-    const rowCount = Math.min(prevRows.length, currRows.length);
-    let salPercentTotal = 0;
-
-    for (let i = 0; i < rowCount; i++) {
-      // const prevCell = prevRows[i].children[1];
-      // const currCell = currRows[i].children[1];
-      const prevCell = prevRows[i].children[0];
-      const currCell = currRows[i].children[0];
-
-      if (!prevCell || !currCell) continue;
-
-      const prevVal = this._parseNumber(prevCell.textContent);
-      const currVal = this._parseNumber(currCell.textContent);
-
-      salPercentTotal += currVal;
-
-      // Comparación con la tabla anterior
-      if (prevVal > currVal + 0.001) {
-        currCell.classList.add("table-warning");
-        currCell.title = "Controllare Valore % inserito";
-        currCell.style.cursor = "help";
-      } else {
-        currCell.classList.remove("table-warning");
-        currCell.title = "";
-        currCell.style.cursor = "default";
-      }
-    }
-
-    // // Verificar si se supera el 100%
-    // if (salPercentTotal > 100.001) {
-    //   for (let i = 0; i < rowCount; i++) {
-    //     const currCell = currRows[i].children[1];
-    //     currCell.classList.add("table-danger");
-    //     currCell.title = "Totale SAL% supera il 100%";
-    //   }
-    // } else {
-    //   for (let i = 0; i < rowCount; i++) {
-    //     const currCell = currRows[i].children[1];
-    //     currCell.classList.remove("table-danger");
-    //     // No toques el título si hay otra advertencia activa
-    //     if (!currCell.classList.contains("table-warning")) {
-    //       currCell.title = "";
-    //     }
-    //   }
-    // }
-    let totalSalPercentCurrTable = 0;
-    currRows.forEach((row) => {
-      const salPercentCell = row.children[0]; // SAL % celda
-      if (salPercentCell) {
-        const val = this._parseNumber(
-          salPercentCell.textContent.replace("%", "")
-        );
-        totalSalPercentCurrTable += val;
-      }
-    });
-
-    if (
-      totalSalPercentCurrTable > 100.001 ||
-      totalSalPercentCurrTable < -0.001
-    ) {
-      // Error si es >100% o <0%
-      currRows.forEach((row) => {
-        const salPercentCell = row.children[0]; // SAL % celda
-        if (salPercentCell) {
-          salPercentCell.classList.add("table-danger");
-          salPercentCell.title = "Totale SAL% supera il 100%"; // Mensaje para total de columna
-          salPercentCell.style.cursor = "help";
-        }
-      });
-    } else {
-      // Si no hay error en el total de la columna, asegurarse de quitar la clase table-danger
-      currRows.forEach((row) => {
-        const salPercentCell = row.children[0];
-        if (salPercentCell) {
-          salPercentCell.classList.remove("table-danger");
-          // Si la celda no tiene table-warning, quitar también el título
-          if (!salPercentCell.classList.contains("table-warning")) {
-            salPercentCell.removeAttribute("title");
-            salPercentCell.style.cursor = "default";
-          }
-        }
-      });
-    }
-
-    // Verificar si se supera el 100% por fila (horizontalmente)
-    for (let i = 0; i < rowCount; i++) {
-      let totalPerRow = 0;
-      for (let t = 0; t < tables.length; t++) {
-        const tableElement = tables[t].element.querySelector("table");
-        const row = tableElement?.querySelectorAll("tbody tr")[i];
-        if (!row || row.children.length < 2) continue;
-        const cell = row.children[0]; // SAL %
-        const val = this._parseNumber(cell.textContent.replace("%", ""));
-        totalPerRow += val;
-      }
-
-      const currCell = currRows[i].children[0]; // SAL %
-      if (totalPerRow > 100.001) {
-        console.log(`Fila ${i}: totalPerRow = ${totalPerRow}`);
-        currCell.classList.add("table-danger");
-        currCell.title = "Somma SAL% supera il 100%";
-        currCell.style.cursor = "help";
-      } else {
-        currCell.classList.remove("table-danger");
-        if (!currCell.classList.contains("table-warning")) {
-          currCell.title = "";
-        }
-      }
-      //console.log(`Fila ${i}: totalPerRow = ${totalPerRow}`);
-    }
-  }
-
-  // _parseNumber(str) {
-  //   return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
-  // }
-  _parseNumber(str) {
-    if (!str) return 0;
-    str = str.trim();
-
-    // Si tiene coma, asumimos formato europeo y lo convertimos
-    if (str.includes(",")) {
-      return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
-    }
-
-    // Si no tiene coma, asumimos que ya viene como número JS válido
-    return parseFloat(str) || 0;
   }
 
   reset() {
@@ -479,5 +408,14 @@ class SalTableManager {
         "input[type='checkbox']:checked"
       )
     ).map((checkbox) => checkbox.value);
+  }
+
+  _parseNumber(str) {
+    if (!str) return 0;
+    str = str.trim();
+    if (str.includes(",")) {
+      return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+    }
+    return parseFloat(str) || 0;
   }
 }
