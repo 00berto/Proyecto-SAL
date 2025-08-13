@@ -9,9 +9,10 @@ class SalTableManager {
     this.container = document.getElementById(salCopiesContainerId);
     this.summaryTableGenerator = summaryTableGenerator;
     this.salTableCounter = 0;
-    this.generatedSalTables = []; // Stores { id, title, element }
+    this.generatedSalTables = [];
     this.checkboxesContainer = checkboxesContainer;
     this.selectionSection = selectionSectionDiv;
+    this._addInputListeners();
   }
 
   createSalCopyTable() {
@@ -36,7 +37,7 @@ class SalTableManager {
     ["SAL %", "Importo SAL"].forEach((name) => {
       const th = document.createElement("th");
       th.textContent = name;
-      th.classList.add("text-center"); // Centered alignment for SAL headers
+      th.classList.add("text-center");
       headerRow.appendChild(th);
     });
     thead.appendChild(headerRow);
@@ -48,21 +49,20 @@ class SalTableManager {
     this.container.appendChild(salTableWrapper);
 
     this.generatedSalTables.push({
-      // Agregado para que la tabla esté en el array antes de poblar
       id: salTableId,
       title: newTableTitle,
       element: salTableWrapper,
     });
 
     this._populateSalTable(tbody);
-    this._addSalTableCheckbox(salTableId, newTableTitle); // this adds to generatedSalTables again, potential duplicate.
-    // Let's ensure generatedSalTables.push happens only once.
-    // Moved it up before populateSalTable.
+    this._addSalTableCheckbox(salTableId, newTableTitle);
     this._validateSalRowsBetweenTables();
+    this._updateSummaryTable();
   }
+
   deleteLastSalTable() {
     if (this.salTableCounter > 0) {
-      const lastTableInfo = this.generatedSalTables.pop(); // Removes from array
+      const lastTableInfo = this.generatedSalTables.pop();
       if (lastTableInfo) {
         const tableElement = lastTableInfo.element;
         const checkboxElement = document.getElementById(
@@ -84,21 +84,22 @@ class SalTableManager {
         }
       }
 
-      // Verifica SAL% después de eliminar
       this._validateSalRowsBetweenTables();
+      this._updateSummaryTable();
     } else {
       alert("Nussuna tabella SAL da eliminare.");
     }
   }
 
   _populateSalTable(tbody) {
-    // Clear tbody before populating
     tbody.innerHTML = "";
 
     const originalTableWrappers = document.querySelectorAll(
       "#tableContainer .table-wrapper.original-table-wrapper"
     );
     const totalOriginalTables = originalTableWrappers.length;
+
+    let grandTotalImportoSal = 0;
 
     originalTableWrappers.forEach((originalTableWrapper, sectionIndex) => {
       const originalTable = originalTableWrapper.querySelector("table");
@@ -108,8 +109,9 @@ class SalTableManager {
       const originalHeadersLength =
         originalTable.querySelector("thead tr").children.length - 4;
 
-      // Calculate SAL% total for this section before creating rows
       let currentSectionSalPercentTotal = 0;
+      let currentSectionImportoSalTotal = 0;
+
       originalTbody
         .querySelectorAll("tr:not(.total-row)")
         .forEach((originalRow) => {
@@ -122,27 +124,29 @@ class SalTableManager {
             originalSalInput ? originalSalInput.value : "0"
           );
           currentSectionSalPercentTotal += salPercentValue;
+
+          const salImportoText =
+            originalCells[originalHeadersLength + 1]?.textContent;
+          currentSectionImportoSalTotal += this._parseNumber(salImportoText);
         });
 
-      // Determine if there's a percentage error for this section
       const isSalPercentError =
         currentSectionSalPercentTotal > 100.0001 ||
         currentSectionSalPercentTotal < -0.0001;
 
-      // Add empty row before section header if applicable
       if (
         originalTitleElement &&
         (sectionIndex > 0 || totalOriginalTables > 1)
       ) {
         const emptySectionSpacerRow = document.createElement("tr");
         const emptySectionSpacerCell = document.createElement("td");
-        emptySectionSpacerCell.colSpan = 2; // Ocupa las 2 columnas
+        emptySectionSpacerCell.colSpan = 2;
         emptySectionSpacerRow.appendChild(emptySectionSpacerCell);
         tbody.appendChild(emptySectionSpacerRow);
 
-        // Add section header
         const sectionHeaderRow = document.createElement("tr");
         sectionHeaderRow.classList.add("table-section-header");
+        sectionHeaderRow.id = `sal-section-${sectionIndex}`;
         const sectionHeaderCell = document.createElement("td");
         sectionHeaderCell.colSpan = 2;
         sectionHeaderCell.textContent = originalTitleElement.textContent;
@@ -152,7 +156,6 @@ class SalTableManager {
         tbody.appendChild(sectionHeaderRow);
       }
 
-      // Iterate over main table rows to create SAL table rows
       originalTbody
         .querySelectorAll("tr:not(.total-row)")
         .forEach((originalRow) => {
@@ -170,10 +173,6 @@ class SalTableManager {
           const salPercentTd = document.createElement("td");
           salPercentTd.textContent = `${salPercentValue.toFixed(2)}%`;
           salPercentTd.classList.add("text-center");
-
-          // NOTE: The table-danger for individual cell value > 100%
-          // and table-warning for prev vs curr will be handled in _validateSalRowsBetweenTables
-          // This ensures _populateSalTable just creates the cells.
 
           newRow.appendChild(salPercentTd);
 
@@ -197,9 +196,8 @@ class SalTableManager {
         );
 
         const totalSalPercentTd = document.createElement("td");
-        // DEJA ESTA CELDA DEL TOTAL DE SECCIÓN SIEMPRE VACÍA
         totalSalPercentTd.textContent = "";
-        // PERO APLICA LA CLASE 'table-danger' A LA FILA COMPLETA SI HAY UN ERROR EN EL TOTAL DE LA SECCIÓN
+
         if (isSalPercentError) {
           newTotalRow.classList.add("table-danger");
         } else {
@@ -209,18 +207,18 @@ class SalTableManager {
         newTotalRow.appendChild(totalSalPercentTd);
 
         const totalImportoSalTd = document.createElement("td");
-        const originalTotalImportoSalText =
-          totalOriginalRow.children[totalOriginalRow.children.length - 1]
-            ?.textContent;
-        totalImportoSalTd.textContent = originalTotalImportoSalText || "0,00";
+        totalImportoSalTd.textContent = this._formatNumber(
+          currentSectionImportoSalTotal
+        );
         totalImportoSalTd.classList.add("text-center");
         newTotalRow.appendChild(totalImportoSalTd);
 
         tbody.appendChild(newTotalRow);
       }
+
+      grandTotalImportoSal += currentSectionImportoSalTotal;
     });
 
-    // Separator and Global SAL Total (no changes needed, assumed these parts are fine)
     const grandTotalSeparatorRow = document.createElement("tr");
     const grandTotalSeparatorCell = document.createElement("td");
     grandTotalSeparatorCell.colSpan = 2;
@@ -239,30 +237,38 @@ class SalTableManager {
     finalGrandTotalRow.appendChild(grandTotalLabelTd);
 
     const grandTotalValueTd = document.createElement("td");
-    const totalSummaryTable = document.getElementById("summaryTableWrapper");
-    if (totalSummaryTable) {
-      const lastRow = totalSummaryTable.querySelector("tbody tr:last-child");
-      if (lastRow && lastRow.children.length > 1) {
-        grandTotalValueTd.textContent = lastRow.children[1].textContent;
-      }
-    } else {
-      grandTotalValueTd.textContent = "0,00";
-    }
+    grandTotalValueTd.textContent = this._formatNumber(grandTotalImportoSal);
     grandTotalValueTd.classList.add("text-center");
     finalGrandTotalRow.appendChild(grandTotalValueTd);
 
     tbody.appendChild(finalGrandTotalRow);
   }
 
+  _addInputListeners() {
+    const originalSalInputs = document.querySelectorAll('#tableContainer input.sal-input');
+    originalSalInputs.forEach(input => {
+      input.addEventListener('input', () => {
+        this._updateAllTables();
+      });
+    });
+  }
+
+  _updateAllTables() {
+    this.generatedSalTables.forEach(tableInfo => {
+      const tbody = tableInfo.element.querySelector('tbody');
+      this._populateSalTable(tbody);
+    });
+    this._validateSalRowsBetweenTables();
+    this._updateSummaryTable();
+  }
+
   _validateSalRowsBetweenTables() {
     const tables = this.generatedSalTables;
 
-    // Lógica para limpiar si solo queda 1 tabla o ninguna
     if (tables.length < 2) {
       if (tables.length === 1) {
         const currentTableBody = tables[0].element.querySelector("table tbody");
         if (currentTableBody) {
-          // Filtrar solo las celdas de datos para limpiar
           const dataCells = Array.from(currentTableBody.querySelectorAll("tr"))
             .filter(
               (tr) =>
@@ -270,8 +276,7 @@ class SalTableManager {
                 !tr.classList.contains("table-section-header") &&
                 tr.children.length > 0
             )
-            .map((tr) => tr.children[0]); // Solo la celda SAL %
-
+            .map((tr) => tr.children[0]);
           dataCells.forEach((cell) => {
             cell.classList.remove("table-warning", "table-danger");
             cell.removeAttribute("title");
@@ -290,7 +295,6 @@ class SalTableManager {
 
     if (!prevTable || !currTable) return;
 
-    // Obtener SOLO las filas de datos (excluyendo totales, encabezados, espaciadores)
     const prevDataRows = Array.from(
       prevTable.querySelectorAll("tbody tr")
     ).filter(
@@ -311,53 +315,38 @@ class SalTableManager {
 
     const rowCount = Math.min(prevDataRows.length, currDataRows.length);
 
-    // Reiniciar estados de las celdas de la tabla actual (currTable) antes de aplicar nuevas validaciones
     currDataRows.forEach((row) => {
       if (row.children.length > 0) {
-        const salPercentCell = row.children[0]; // SAL % celda
+        const salPercentCell = row.children[0];
         salPercentCell.classList.remove("table-warning", "table-danger");
         salPercentCell.removeAttribute("title");
         salPercentCell.style.cursor = "default";
       }
     });
 
-    // --- Validación de SAL% entre tabla anterior y actual (SALn-1 vs SALn) y valor individual > 100% ---
     for (let i = 0; i < rowCount; i++) {
-      const prevCell = prevDataRows[i].children[0]; // Índice 0 para SAL %
-      const currCell = currDataRows[i].children[0]; // Índice 0 para SAL %
+      const prevCell = prevDataRows[i].children[0];
+      const currCell = currDataRows[i].children[0];
 
       if (!prevCell || !currCell) continue;
 
       const prevVal = this._parseNumber(prevCell.textContent.replace("%", ""));
       const currVal = this._parseNumber(currCell.textContent.replace("%", ""));
 
-      // Prioridad: Valore > 100% (danger) > Valor < anterior (warning)
       if (currVal > 100.001) {
-        // **NUEVA VALIDACIÓN CLIENTE: Valor individual de SAL% > 100%**
         currCell.classList.add("table-danger");
         currCell.title = "Valore SAL% superiore a 100%";
         currCell.style.cursor = "help";
       } else if (currVal < prevVal - 0.001) {
-        // Tu validación original: Valor actual < valor anterior
         currCell.classList.add("table-warning");
         currCell.title = "Controllare Valore % inserito";
         currCell.style.cursor = "help";
       } else {
-        // Si ninguna de las condiciones anteriores se cumple, limpiar cualquier estilo
         currCell.classList.remove("table-warning", "table-danger");
         currCell.removeAttribute("title");
         currCell.style.cursor = "default";
       }
     }
-
-    // --- SECCIÓN ELIMINADA: Validación de "SUMA de SAL% en la COLUMNA de la ÚLTIMA TABLA" ---
-    // Según tu petición de que "la clase solo en la celda con el error no en la columna",
-    // esta sección (que aplicaba table-danger a todas las celdas si la suma superaba el 100%)
-    // ha sido eliminada. La validación de la suma total por sección sigue en _populateSalTable
-    // afectando la fila de TOTAL de la sección.
-
-    // --- SECCIÓN ELIMINADA: Validación "Total por Fila Horizontalmente" (tu punto 4 anterior) ---
-    // Este bloque ha sido removido según tu solicitud previa.
   }
 
   _addSalTableCheckbox(id, title) {
@@ -410,12 +399,88 @@ class SalTableManager {
     ).map((checkbox) => checkbox.value);
   }
 
+  _updateSummaryTable() {
+    const lastSalTableInfo =
+      this.generatedSalTables[this.generatedSalTables.length - 1];
+
+    if (!lastSalTableInfo) {
+      this.summaryTableGenerator.reset();
+      return;
+    }
+
+    const lastSalTableElement = lastSalTableInfo.element.querySelector("table");
+    const sections = [];
+    let currentSectionTitle = "N/A";
+    let currentSectionId = '';
+
+    const allRows = lastSalTableElement.querySelectorAll("tbody tr");
+    allRows.forEach((row) => {
+      if (row.classList.contains("table-section-header")) {
+        currentSectionTitle = row.textContent;
+        currentSectionId = row.id;
+      } else if (row.classList.contains("sal-copy-total-row")) {
+        const totalCell = row.children[1];
+        const salTotal = this._parseNumber(totalCell.textContent);
+
+        if (salTotal > 0) {
+          sections.push({
+            title: currentSectionTitle,
+            salTotal: salTotal,
+            sectionId: currentSectionId,
+          });
+        }
+      }
+    });
+
+    this.summaryTableGenerator.generate(sections);
+  }
+
+  getExportableSalData() {
+    const lastSalTableInfo = this.generatedSalTables[this.generatedSalTables.length - 1];
+
+    if (!lastSalTableInfo) {
+      return null;
+    }
+
+    const lastSalTableElement = lastSalTableInfo.element.querySelector("table");
+    const lastRow = lastSalTableElement.querySelector("tbody tr:last-child");
+    const totalGlobalCell = lastRow ? lastRow.querySelector("td:last-child") : null;
+    
+    const salTitle = lastSalTableInfo.title;
+    const salNumberMatch = salTitle.match(/\d+/);
+    const numeroSAL = salNumberMatch ? parseInt(salNumberMatch[0], 10) : 0;
+    
+    const totalGlobalSAL = totalGlobalCell ? this._parseNumber(totalGlobalCell.textContent) : 0;
+
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    const fechaModificacion = `${day}.${month}.${year}`;
+
+    return {
+      numeroSAL: numeroSAL,
+      totalGlobalSAL: totalGlobalSAL,
+      fechaModificacion: fechaModificacion,
+    };
+  }
+
   _parseNumber(str) {
     if (!str) return 0;
     str = str.trim();
+    if (str.includes("€")) {
+      str = str.replace("€", "");
+    }
     if (str.includes(",")) {
       return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
     }
     return parseFloat(str) || 0;
+  }
+
+  _formatNumber(num) {
+    return num.toLocaleString("it-IT", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
 }

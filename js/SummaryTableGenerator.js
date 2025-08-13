@@ -4,12 +4,7 @@ class SummaryTableGenerator {
     this.container = document.getElementById(containerId);
   }
 
-  /**
-   * Genera y añade la tabla de resumen de totales SAL de todas las secciones.
-   * @param {Array<{title: string, salTotal: number}>} allTablesSalTotals - Array de objetos con el título y el total SAL de cada tabla.
-   */
   generate(allTablesSalTotals) {
-    // Eliminar la tabla de resumen anterior si existe para evitar duplicados
     const existingSummaryTable = document.getElementById("summaryTableWrapper");
     if (existingSummaryTable) {
       existingSummaryTable.remove();
@@ -24,7 +19,8 @@ class SummaryTableGenerator {
     summaryTableWrapper.className = "mt-5 mb-5";
 
     const summaryTitle = document.createElement("h3");
-    summaryTitle.textContent = "Resumen de Importes SAL por Sección";
+    summaryTitle.textContent = "Riassunto dei totali SAL por sezione";
+    summaryTitle.className = "mx-5";
     summaryTableWrapper.appendChild(summaryTitle);
 
     const summaryTable = document.createElement("table");
@@ -34,7 +30,7 @@ class SummaryTableGenerator {
 
     const headerRow = document.createElement("tr");
     const thTitle = document.createElement("th");
-    thTitle.textContent = "Sección del Proyecto";
+    thTitle.textContent = "Sezione del Progetto";
     const thSalTotal = document.createElement("th");
     thSalTotal.textContent = "Importo SAL Total";
     thSalTotal.className = "text-end";
@@ -48,13 +44,37 @@ class SummaryTableGenerator {
     allTablesSalTotals.forEach((item) => {
       const row = document.createElement("tr");
       const tdTitle = document.createElement("td");
-      tdTitle.textContent = item.title;
+
+      const titleContainer = document.createElement("div");
+      titleContainer.style.display = "flex";
+      titleContainer.style.alignItems = "center";
+      titleContainer.style.justifyContent = "space-between";
+
+      const titleSpan = document.createElement("span");
+      titleSpan.textContent = item.title;
+      titleContainer.appendChild(titleSpan);
+
+      const jumpButton = document.createElement("button");
+      jumpButton.textContent = "↗️";
+      jumpButton.title = "Vai alla sezione";
+      jumpButton.classList.add("btn", "btn-sm", "btn-outline-secondary", "ms-2");
+      jumpButton.onclick = () => {
+        const targetElement = document.getElementById(item.sectionId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      };
+
+      titleContainer.appendChild(jumpButton);
+      tdTitle.appendChild(titleContainer);
+
       const tdSalTotal = document.createElement("td");
       tdSalTotal.textContent = item.salTotal.toLocaleString("it-IT", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
       tdSalTotal.className = "text-end";
+
       row.appendChild(tdTitle);
       row.appendChild(tdSalTotal);
       tbody.appendChild(row);
@@ -81,9 +101,6 @@ class SummaryTableGenerator {
     this.container.appendChild(summaryTableWrapper);
   }
 
-  /**
-   * Limpia la tabla de resumen.
-   */
   reset() {
     const existingSummaryTable = document.getElementById("summaryTableWrapper");
     if (existingSummaryTable) {

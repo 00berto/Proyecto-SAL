@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CERTIFICATO DI PAGAMENTO</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body class="container py-4">
+    <div class="mb-4">
+      <h5>IL COMMITTENTE</h5>
+      <p><strong>[Committente]</strong><br />[Dirección]</p>
+
+      <h5>L'IMPRESA</h5>
+      <p><strong>[Impresa]</strong><br />[Dirección]</p>
+
+      <h5>LAVORI DI</h5>
+      <p>[Descripción del proyecto]</p>
+    </div>
+
+    <h4 class="text-center mb-3">CERTIFICATO DI PAGAMENTO N. [ ]</h4>
+    <p>
+      <strong>Stato di Avanzamento Lavori N.</strong> [ ] - A tutto il [fecha]
+    </p>
+    
+    <div class="mb-4">
+      <h6 class="section-title p-2">CERTIFICATI PRECEDENTI</h6>
+      <table class="table table-bordered table-sm">
+        <thead class="table-light">
+          <tr>
+            <th>n.</th>
+            <th>Data</th>
+            <th>Importo</th>
+          </tr>
+        </thead>
+        <tbody id="certificati-precedenti">
+          <!-- Datos cargados dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mb-4">
+      <h6 class="section-title p-2">CONTEGGI</h6>
+      <table class="table table-bordered table-sm">
+        <tbody id="conteggi">
+          <!-- Datos cargados dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mb-4">
+      <h6 class="section-title p-2">DETRAZIONI</h6>
+      <table class="table table-bordered table-sm">
+        <tbody id="detrazioni">
+          <!-- Datos cargados dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mb-4">
+      <table class="table table-bordered table-sm">
+        <tbody id="totali-finali">
+          <!-- Datos cargados dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row mt-5">
+      <div class="col-md-4 text-center">
+        <p><strong>Il R.L. e CSE</strong><br />Ing. Alessandro Chiesa</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <p><strong>Il Committente</strong><br />Dott.ssa Laura Bramezza</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <p><strong>L’Impresa</strong><br />Geom. Mauro Greggio</p>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

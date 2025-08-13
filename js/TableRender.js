@@ -314,4 +314,26 @@ class TableRenderer {
 
     updateTableTotals();
   }
+  _saveSalPercentages() {
+    // Recolectar todos los datos SAL% de todas las tablas
+    const allTablesData = [];
+
+    // Recorrer todas las tablas originales
+    this.container
+      .querySelectorAll(".original-table-wrapper")
+      .forEach((wrapper) => {
+        const tableId = wrapper.id;
+        const salInputs = wrapper.querySelectorAll("input.sal-input");
+        const salValues = Array.from(salInputs).map(
+          (input) => parseFloat(input.value) || 0
+        );
+
+        allTablesData.push({
+          tableId,
+          salValues,
+        });
+      });
+
+    localStorage.setItem("salPercentagesData", JSON.stringify(allTablesData));
+  }
 }
