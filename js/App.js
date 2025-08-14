@@ -4,6 +4,7 @@ class App {
   constructor() {
     console.log("App.js: Constructor App llamado.");
 
+    // 1. Obtener todas las referencias a elementos del DOM
     this.fileInput = document.getElementById("fileInput");
     this.fileNameTitle = document.getElementById("fileNameTitle");
     this.printPdfBtn = document.getElementById("printPdfBtn");
@@ -15,16 +16,16 @@ class App {
     this.salCopiesContainer = document.getElementById("salCopiesContainer");
     this.salTablesSelectionDiv = document.getElementById("salTablesSelection");
     this.salTablesCheckboxes = document.getElementById("salTablesCheckboxes");
+    this.summaryContainer = document.getElementById("summaryContainer"); // Referencia al nuevo contenedor
 
+    // 2. Inicializar los componentes una sola vez
     this.excelProcessor = new ExcelProcessor();
-    this.summaryTableGenerator = new SummaryTableGenerator("tableContainer");
-
+    this.summaryTableGenerator = new SummaryTableGenerator("summaryContainer"); // Usar el nuevo contenedor
     this.tableRenderer = new TableRenderer(
       "tableContainer",
       this.summaryTableGenerator,
       7 // BASE_CALC_COL_INDEX
     );
-
     this.salTableManager = new SalTableManager(
       "salCopiesContainer",
       this.summaryTableGenerator,
@@ -32,6 +33,7 @@ class App {
       this.salTablesSelectionDiv
     );
 
+    // 3. Ocultar elementos al inicio
     this.printPdfBtn.style.display = "none";
     this.tablaSalBtn.style.display = "none";
     this.deleteSalBtn.style.display = "none";
@@ -44,6 +46,7 @@ class App {
     this._addEventListeners();
   }
 
+  // Los métodos _addEventListeners, _handleFileInputChange, etc. son correctos y no necesitan cambios.
   _addEventListeners() {
     this.fileInput.addEventListener(
       "change",
@@ -84,6 +87,7 @@ class App {
 
     this.tableContainer.innerHTML = "";
     this.salCopiesContainer.innerHTML = "";
+    this.summaryContainer.innerHTML = ""; // Limpiar también el nuevo contenedor de resumen
 
     if (!file) {
       return;
@@ -149,25 +153,22 @@ class App {
       return;
     }
 
-    PdfGenerator.generatePdf(
-      tablesToPrint,
-      "Reporte_Completo_SAL.pdf"
-    );
+    PdfGenerator.generatePdf(tablesToPrint, "Reporte_Completo_SAL.pdf");
   }
 
   _handleExportData() {
-      const salData = this.salTableManager.getExportableSalData();
+    const salData = this.salTableManager.getExportableSalData();
 
-      if (salData) {
-          try {
-              localStorage.setItem("salExportData", JSON.stringify(salData));
-              alert("¡Datos SAL exportados correctamente y guardados!");
-          } catch (error) {
-              console.error("Error al guardar en localStorage:", error);
-              alert("Error al guardar los datos exportados.");
-          }
-      } else {
-          alert("No hay datos SAL para exportar.");
+    if (salData) {
+      try {
+        localStorage.setItem("salExportData", JSON.stringify(salData));
+        alert("¡Datos SAL exportados correctamente y guardados!");
+      } catch (error) {
+        console.error("Error al guardar en localStorage:", error);
+        alert("Error al guardar los datos exportados.");
       }
+    } else {
+      alert("No hay datos SAL para exportar.");
+    }
   }
 }

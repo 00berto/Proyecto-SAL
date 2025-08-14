@@ -5,12 +5,14 @@ class SummaryTableGenerator {
   }
 
   generate(allTablesSalTotals) {
+
     const existingSummaryTable = document.getElementById("summaryTableWrapper");
     if (existingSummaryTable) {
       existingSummaryTable.remove();
     }
 
     if (allTablesSalTotals.length === 0) {
+      console.log("SummaryTableGenerator: No hay datos para generar la tabla resumen.");
       return;
     }
 
@@ -99,12 +101,15 @@ class SummaryTableGenerator {
     summaryTable.appendChild(tbody);
     summaryTableWrapper.appendChild(summaryTable);
     this.container.appendChild(summaryTableWrapper);
+    
   }
 
   reset() {
+    console.log("SummaryTableGenerator: Reseteando la tabla resumen.");
     const existingSummaryTable = document.getElementById("summaryTableWrapper");
     if (existingSummaryTable) {
       existingSummaryTable.remove();
     }
+    this.container.innerHTML = "";
   }
 }

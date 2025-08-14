@@ -17,6 +17,7 @@ body {
 .tabla-scale {
     padding-left: 0;
     padding-right: 0;
+    overflow: scroll;
 }
 
 /* Estilos para el contenedor individual de cada tabla (original y SAL) */
@@ -169,6 +170,6 @@ td.text-end {
 .container-lg,
 .container-md,
 .container-sm {
-    max-width: 95%;
+    max-width: 100%;
 }
 

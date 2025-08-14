@@ -16,26 +16,74 @@
       <!-- Datos del Committente -->
       <fieldset class="mb-4">
         <legend>IL COMMITTENTE</legend>
-        <div class="mb-3">
-          <label class="form-label">Ragione sociale</label>
-          <input type="text" class="form-control" placeholder="Nome Impresa" />
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Ragione sociale</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Nome Impresa"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Indirizzo completo</label>
+            <input type="text" class="form-control" placeholder="Indirizzo" />
+          </div>
         </div>
         <div class="mb-3">
-          <label class="form-label">Indirizzo completo</label>
-          <input type="text" class="form-control" placeholder="Indirizzo" />
+          <label class="form-label">Referente</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Nella persona di:"
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Il R.L. e CSE</label>
+          <input type="text" class="form-control" placeholder="R.L. e CSE" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Direttore dei lavori</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Direttore dei lavori"
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Project Manager</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Project Manager"
+          />
         </div>
       </fieldset>
 
       <!-- Datos de la Impresa -->
       <fieldset class="mb-4">
         <legend>L'IMPRESA</legend>
-        <div class="mb-3">
-          <label class="form-label">Ragione sociale</label>
-          <input type="text" class="form-control" placeholder="Nome Impresa" />
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Ragione sociale</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Nome Impresa"
+            />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Indirizzo completo</label>
+            <input type="text" class="form-control" placeholder="Indirizzo" />
+          </div>
         </div>
         <div class="mb-3">
-          <label class="form-label">Indirizzo completo</label>
-          <input type="text" class="form-control" placeholder="Indirizzo" />
+          <label class="form-label">Direttore dei lavori</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Direttore dei lavori Impiantistici"
+          />
         </div>
       </fieldset>
 
@@ -54,19 +102,61 @@
           <label class="form-label">Indirizzo del Progetto</label>
           <input type="text" class="form-control" placeholder="Indirizzo" />
         </div>
-        <div class="mb-3">
-          <label class="form-label">Data inicio</label>
-          <input type="date" class="form-control" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Data fine prevista</label>
-          <input type="date" class="form-control" />
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Data inicio</label>
+            <input type="date" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Data fine prevista</label>
+            <input type="date" class="form-control" />
+          </div>
         </div>
       </fieldset>
 
-      <button type="submit" class="btn btn-primary">
-        Salvare / Continuare
-      </button>
+      <!-- Infortuni -->
+      <div class="container mt-5">
+        <form id="presse-form">
+          <fieldset class="mb-4">
+            <legend>Assicurazioni Infortuni</legend>
+            <p class="text-muted">Assicurazione Infortuni</p>
+
+            <div id="presse-container">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label visually-hidden"
+                    >Indirizzo/Sede</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Indirizzo/Sede"
+                    name="indirizzo[]"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label visually-hidden">Numero</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Numero"
+                    name="numero[]"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-light" id="add-field-btn">
+              Aggiungi Assicurazione
+            </button>
+          </fieldset>
+        </form>
+      </div>
+
+      <button type="submit" class="btn btn-light">Salvare / Continuare</button>
     </form>
+    <script src="js_empresa/main.js"></script>
   </body>
 </html>
