@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dati Impresa - Certificato SAL</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="container py-4">
+    <h3 class="mb-4">Dati Certificato di Pagamento</h3>
+
+    <form>
+      <!-- Datos del Committente -->
+      <fieldset class="mb-4">
+        <legend>IL COMMITTENTE</legend>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Ragione sociale</label>
+            <input type="text" id="committenteRagione" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Indirizzo completo</label>
+            <input type="text" id="committenteIndirizzo" class="form-control" />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Referente</label>
+          <input type="text" id="committenteReferente" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Il R.L. e CSE</label>
+          <input type="text" id="committenteRL" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Direttore dei lavori</label>
+          <input type="text" id="committenteDL" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Project Manager</label>
+          <input type="text" id="committentePM" class="form-control" />
+        </div>
+      </fieldset>
+
+      <!-- Datos de la Impresa -->
+      <fieldset class="mb-4">
+        <legend>L'IMPRESA</legend>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Ragione sociale</label>
+            <input type="text" id="impresaRagione" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Indirizzo completo</label>
+            <input type="text" id="impresaIndirizzo" class="form-control" />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Direttore dei lavori</label>
+          <input type="text" id="impresaDL" class="form-control" />
+        </div>
+      </fieldset>
+
+      <!-- Proyecto -->
+      <fieldset class="mb-4">
+        <legend>INFO DEL PROGETTO</legend>
+        <div class="mb-3">
+          <label class="form-label">Descrizione del Progetto</label>
+          <textarea id="progettoDescrizione" class="form-control"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Indirizzo del Progetto</label>
+          <input type="text" id="progettoIndirizzo" class="form-control" />
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Data inicio</label>
+            <input type="date" id="dataInizio" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Data fine prevista</label>
+            <input type="date" id="dataFine" class="form-control" />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Botón -->
+      <button type="button" class="btn btn-primary" onclick="salvaDati()">
+        Salvare / Continuare
+      </button>
+    </form>
+
+    <script>
+      function salvaDati() {
+        const dati = {
+          committenteRagione: document.getElementById("committenteRagione").value,
+          committenteIndirizzo: document.getElementById("committenteIndirizzo").value,
+          committenteReferente: document.getElementById("committenteReferente").value,
+          committenteRL: document.getElementById("committenteRL").value,
+          committenteDL: document.getElementById("committenteDL").value,
+          committentePM: document.getElementById("committentePM").value,
+          impresaRagione: document.getElementById("impresaRagione").value,
+          impresaIndirizzo: document.getElementById("impresaIndirizzo").value,
+          impresaDL: document.getElementById("impresaDL").value,
+          progettoDescrizione: document.getElementById("progettoDescrizione").value,
+          progettoIndirizzo: document.getElementById("progettoIndirizzo").value,
+          dataInizio: document.getElementById("dataInizio").value,
+          dataFine: document.getElementById("dataFine").value,
+        };
+
+        localStorage.setItem("certificatoDati", JSON.stringify(dati));
+        window.location.href = "certificato.html";
+      }
+    </script>
+  </body>
+</html>

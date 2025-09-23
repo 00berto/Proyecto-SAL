@@ -484,3 +484,65 @@ class SalTableManager {
     });
   }
 }
+
+// === NUEVO CÓDIGO PARA CERTIFICATI ===
+
+// Histórico de SAL
+let certificatiPrecedenti = [];
+
+// Guardar en historial cada vez que se genera un nuevo SAL
+function saveSalToHistory(salManager) {
+  const data = salManager.getExportableSalData();
+  if (data) {
+    certificatiPrecedenti.push(data);
+    updatePrecedentiTable();
+  }
+}
+
+// Actualizar tabla de precedenti
+function updatePrecedentiTable() {
+  const tbody = document.querySelector("#precedenti-table tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  certificatiPrecedenti.forEach((item, index) => {
+    const row = document.createElement("tr");
+
+    // n.
+    const cellN = document.createElement("td");
+    cellN.textContent = index + 1;
+    cellN.classList.add("text-center");
+    row.appendChild(cellN);
+
+    // data
+    const cellData = document.createElement("td");
+    cellData.textContent = item.fechaModificacion;
+    cellData.classList.add("text-center");
+    row.appendChild(cellData);
+
+    // importo
+    const cellImporto = document.createElement("td");
+    cellImporto.textContent = item.totalGlobalSAL.toLocaleString("it-IT", {
+      style: "currency",
+      currency: "EUR"
+    });
+    cellImporto.classList.add("text-end");
+    row.appendChild(cellImporto);
+
+    tbody.appendChild(row);
+  });
+}
+
+// Actualizar el certificado actual
+function updateCertificatoHeader(salManager) {
+  const data = salManager.getExportableSalData();
+  if (data) {
+    document.getElementById("numero-sal").textContent = data.numeroSAL;
+    document.getElementById("data-sal").textContent = data.fechaModificacion;
+    document.getElementById("importo-sal").textContent = data.totalGlobalSAL.toLocaleString("it-IT", {
+      style: "currency",
+      currency: "EUR"
+    });
+  }
+}

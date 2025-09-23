@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Certificato di Pagamento</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="container my-4">
+    <div id="certificato">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Certificato di Pagamento (SAL)</h3>
+        <button id="download" class="btn btn-success">Scarica PDF</button>
+      </div>
+
+      <!-- Sezione dati in 2 colonne -->
+      <div class="row">
+        <!-- Colonna sinistra -->
+        <div class="col-md-6">
+          <h6 class="fw-bold">IL COMMITTENTE</h6>
+          <p>
+            <span id="committenteRagione" class="text-primary"></span><br />
+            <span id="committenteIndirizzo" class="text-primary"></span><br />
+            <small id="committenteReferente"></small>
+          </p>
+
+          <h6 class="fw-bold mt-4">INFO PROGETTO</h6>
+          <p id="progettoDescrizione"></p>
+          <p><strong>Indirizzo:</strong> <span id="progettoIndirizzo"></span></p>
+          <p><strong>Inizio:</strong> <span id="dataInizio"></span></p>
+          <p><strong>Fine prevista:</strong> <span id="dataFine"></span></p>
+        </div>
+
+        <!-- Colonna destra -->
+        <div class="col-md-6">
+          <h6 class="fw-bold">L’IMPRESA</h6>
+          <p>
+            <span id="impresaRagione" class="text-primary"></span><br />
+            <span id="impresaIndirizzo" class="text-primary"></span>
+          </p>
+
+          <h6 class="fw-bold mt-4">RESPONSABILI</h6>
+          <p><strong>R.L. e CSE:</strong> <span id="committenteRL"></span></p>
+          <p><strong>Direttore dei lavori:</strong> <span id="committenteDL"></span></p>
+          <p><strong>Project Manager:</strong> <span id="committentePM"></span></p>
+          <p><strong>Direttore lavori Impresa:</strong> <span id="impresaDL"></span></p>
+        </div>
+      </div>
+
+      <hr class="my-4" />
+  <div class="container mt-4">
+  <div class="row">
+    <!-- Columna izquierda: Certificati precedenti -->
+    <div class="col-md-6">
+      <h4 class="mb-3">CERTIFICATI PRECEDENTI</h4>
+      <table class="table table-bordered table-sm" id="precedenti-table">
+        <thead class="table-light">
+          <tr>
+            <th class="text-center">n.</th>
+            <th class="text-center">data</th>
+            <th class="text-center">importo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Se llena dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Columna derecha: Certificato attuale -->
+    <div class="col-md-6">
+      <h4 class="mb-3">CERTIFICATO DI PAGAMENTO</h4>
+      <p>
+        <strong>
+          Stato di Avanzamento Lavori N.<span id="numero-sal"></span>
+        </strong>
+      </p>
+      <p><strong>Data:</strong> <span id="data-sal"></span></p>
+      <p><strong>Importo:</strong> <span id="importo-sal"></span></p>
+    </div>
+  </div>
+</div>
+
+      <!-- Tabella SAL -->
+      <h5 class="mb-3">Dati SAL / Costi</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm">
+          <thead class="table-light">
+            <tr>
+              <th>Voce</th>
+              <th>Quantità</th>
+              <th>Prezzo Unitario</th>
+              <th>Totale</th>
+            </tr>
+          </thead>
+          <tbody id="salTableBody">
+            <!-- Dati popolati da localStorage -->
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <td colspan="3" class="text-end fw-bold">Totale Generale</td>
+              <td id="salTotal" class="fw-bold text-primary"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Librerie -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+      // Recupero dati impresa/progetto da localStorage
+      const dati = JSON.parse(localStorage.getItem("datiCertificato")) || {};
+      document.getElementById("committenteRagione").textContent =
+        dati.committenteRagione || "";
+      document.getElementById("committenteIndirizzo").textContent =
+        dati.committenteIndirizzo || "";
+      document.getElementById("committenteReferente").textContent =
+        dati.committenteReferente || "";
+      document.getElementById("committenteRL").textContent =
+        dati.committenteRL || "";
+      document.getElementById("committenteDL").textContent =
+        dati.committenteDL || "";
+      document.getElementById("committentePM").textContent =
+        dati.committentePM || "";
+
+      document.getElementById("impresaRagione").textContent =
+        dati.impresaRagione || "";
+      document.getElementById("impresaIndirizzo").textContent =
+        dati.impresaIndirizzo || "";
+      document.getElementById("impresaDL").textContent = dati.impresaDL || "";
+
+      document.getElementById("progettoDescrizione").textContent =
+        dati.progettoDescrizione || "";
+      document.getElementById("progettoIndirizzo").textContent =
+        dati.progettoIndirizzo || "";
+      document.getElementById("dataInizio").textContent = dati.dataInizio || "";
+      document.getElementById("dataFine").textContent = dati.dataFine || "";
+
+      // Recupero dati SAL (estratti da proyectos_sal.html e salvati in localStorage)
+      const salData = JSON.parse(localStorage.getItem("salData")) || [];
+      let total = 0;
+      const tbody = document.getElementById("salTableBody");
+
+      salData.forEach((row) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.voce}</td>
+          <td>${row.quantita}</td>
+          <td>${row.prezzo}</td>
+          <td>${row.totale}</td>
+        `;
+        tbody.appendChild(tr);
+        total += parseFloat(row.totale || 0);
+      });
+
+      document.getElementById("salTotal").textContent = total.toFixed(2);
+
+      // Genera PDF
+      document
+        .getElementById("download")
+        .addEventListener("click", () => {
+          const element = document.getElementById("certificato");
+          html2pdf().set({
+            margin: 0.5,
+            filename: "certificato_pagamento.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: "cm", format: "a4", orientation: "portrait" },
+          }).from(element).save();
+        });
+    </script>
+  </body>
+</html>
