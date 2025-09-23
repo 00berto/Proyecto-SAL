@@ -46,7 +46,6 @@ class App {
     this._addEventListeners();
   }
 
-  // Los métodos _addEventListeners, _handleFileInputChange, etc. son correctos y no necesitan cambios.
   _addEventListeners() {
     this.fileInput.addEventListener(
       "change",

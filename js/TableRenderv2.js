@@ -15,8 +15,8 @@ class TableRenderer {
    * @param {Array<string>} headers - Las cabeceras globales del Excel.
    */
   renderTables(jsonDataRows, headers) {
-    this.container.innerHTML = ""; // Limpiar tablas existentes
-    this.allTablesSalTotals = []; // Resetear los totales
+    this.container.innerHTML = "";
+    this.allTablesSalTotals = [];
 
     let currentTableData = [];
     let currentSectionTitle = "";
@@ -32,11 +32,21 @@ class TableRenderer {
         (isNewSectionHeader || isCompletelyEmptyRow) &&
         currentTableData.length > 0
       ) {
-        this._createAndAppendTable(
+        // Captura el objeto con el ID y el total
+        const tableData = this._createAndAppendTable(
           currentSectionTitle,
           currentTableData,
           headers
         );
+
+        // Ahora tienes acceso a los datos y puedes guardarlos
+        if (tableData) {
+          this.allTablesSalTotals.push({
+            sectionId: tableData.sectionId,
+            title: currentSectionTitle,
+            salTotal: tableData.total,
+          });
+        }
         currentTableData = [];
       }
 
@@ -46,24 +56,30 @@ class TableRenderer {
         currentSectionTitle = "";
       } else {
         currentTableData.push(row);
-        // Si es la primera tabla y no hay título de sección inicial, se mantiene vacío
         if (currentTableData.length === 1 && currentSectionTitle === "") {
-          currentSectionTitle = ""; // Asegura que no tome el título de la siguiente sección si la primera no lo tiene
+          currentSectionTitle = "";
         }
       }
     });
 
-    // Renderizar la última tabla si hay datos pendientes
     if (currentTableData.length > 0) {
-      this._createAndAppendTable(
+      // Captura el objeto de la última tabla
+      const tableData = this._createAndAppendTable(
         currentSectionTitle,
         currentTableData,
         headers
       );
+
+      if (tableData) {
+        this.allTablesSalTotals.push({
+          sectionId: tableData.sectionId,
+          title: currentSectionTitle,
+          salTotal: tableData.total,
+        });
+      }
     }
     this.summaryTableGenerator.generate(this.allTablesSalTotals);
   }
-
   /**
    * Crea y añade una tabla HTML detallada al contenedor.
    * @param {string} titleText - Título de la tabla.
@@ -78,11 +94,12 @@ class TableRenderer {
 
     const tableWrapper = document.createElement("div");
     tableWrapper.className = "table-wrapper original-table-wrapper";
-    // Generar un ID único para cada tabla original para su referencia en el PDF
-    const uniqueID = `original-table-${Date.now()}-${Math.floor(
+
+    // Declara y asigna el ID único
+    const uniqueId = `original-table-${Date.now()}-${Math.floor(
       Math.random() * 1000
     )}`;
-    tableWrapper.id = uniqueID;
+    tableWrapper.id = uniqueId;
 
     if (titleText) {
       const title = document.createElement("h4");
@@ -120,115 +137,12 @@ class TableRenderer {
     tableWrapper.appendChild(table);
     this.container.appendChild(tableWrapper);
 
-    // Función para actualizar los totales de la fila de totales de esta tabla
-    const updateTableTotals = () => {
-      let tempTotals = {};
-      let totalSalPercent = 0;
+    let currentTableSalTotal = 0; // Variable para almacenar el total de esta tabla
 
-      this.autoTotalColumnIndexes.forEach((idx) => {
-        tempTotals[tableHeaders[idx]] = 0;
-      });
-      tempTotals["Importo SAL"] = 0;
-      tempTotals["Importo A FINIRE"] = 0;
-
-      tbody.querySelectorAll("tr:not(.total-row)").forEach((rowElement) => {
-        const cells = rowElement.querySelectorAll("td");
-
-        this.autoTotalColumnIndexes.forEach((idx) => {
-          if (cells[idx]) {
-            tempTotals[tableHeaders[idx]] +=
-              ExcelProcessor.parseFormattedNumber(cells[idx]?.textContent);
-          }
-        });
-
-        tempTotals["Importo SAL"] += ExcelProcessor.parseFormattedNumber(
-          cells[tableHeaders.length + 1]?.textContent
-        );
-        tempTotals["Importo A FINIRE"] += ExcelProcessor.parseFormattedNumber(
-          cells[tableHeaders.length + 3]?.textContent
-        );
-
-        const salInput = cells[tableHeaders.length].querySelector("input");
-        if (salInput) {
-          totalSalPercent += parseFloat(salInput.value) || 0; //sal input
-        }
-      });
-
-      const totalRowElement = tbody.querySelector(".total-row");
-      if (totalRowElement) {
-        const totalCells = totalRowElement.querySelectorAll("td");
-
-        totalCells.forEach((cell) => (cell.textContent = ""));
-        if (totalCells.length > 0) {
-          totalCells[0].textContent = "Total:";
-        }
-
-        this.autoTotalColumnIndexes.forEach((idx) => {
-          if (totalCells[idx]) {
-            totalCells[idx].textContent =
-              tempTotals[tableHeaders[idx]]?.toLocaleString("it-IT", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }) || "0,00";
-          }
-        });
-
-        //logica verifica total SAL%
-
-        // if (totalCells[tableHeaders.length]) {
-        //   totalCells[
-        //     tableHeaders.length
-        //   ].textContent = `${totalSalPercent.toFixed(2)}%`;
-        //   // if (totalSalPercent > 100) {
-        //   totalCells[tableHeaders.length].classList.add("table-danger");
-        // } else {
-        //   totalCells[tableHeaders.length].classList.remove("table-danger");
-        // }
-        //}
-
-        if (totalCells[tableHeaders.length + 1])
-          totalCells[tableHeaders.length + 1].textContent = tempTotals[
-            "Importo SAL"
-          ].toLocaleString("it-IT", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          });
-        if (totalCells[tableHeaders.length + 3])
-          totalCells[tableHeaders.length + 3].textContent = tempTotals[
-            "Importo A FINIRE"
-          ].toLocaleString("it-IT", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          });
-
-        // Actualizar el array global de totales SAL de la tabla actual
-        const existingEntryIndex = this.allTablesSalTotals.findIndex(
-          (entry) => entry.title === titleText
-        );
-
-        if (existingEntryIndex !== -1) {
-          this.allTablesSalTotals[existingEntryIndex].salTotal =
-            tempTotals["Importo SAL"];
-        } else {
-          this.allTablesSalTotals.push({
-            title: titleText || "Sin Título de Sección",
-            salTotal: tempTotals["Importo SAL"],
-            sectionId: uniqueID,
-          });
-        }
-
-        console.log("allTablesSalTotals:", this.allTablesSalTotals);
-        window.addEventListener("load", () => {
-          this.summaryTableGenerator.generate(this.allTablesSalTotals);
-        });
-
-        // this.summaryTableGenerator.generate(this.allTablesSalTotals); // Regenerar tabla resumen
-      }
-    };
-
+    // Lógica para llenar la tabla
     dataRows.forEach((row) => {
       const tr = document.createElement("tr");
-
+      // ... (el resto del código para crear las celdas de la fila) ...
       tableHeaders.forEach((_, i) => {
         const td = document.createElement("td");
         const value = row[i];
@@ -251,23 +165,19 @@ class TableRenderer {
       const salTd = document.createElement("td");
       const input = document.createElement("input");
       input.type = "text";
-      // input.className = "form-control text-end col-sal sal-input";
       input.className = "form-control col-sal sal-input";
       input.value = "0";
       input.setAttribute("data-base-value", baseCalcValue);
       salTd.appendChild(input);
 
       const salImportoTd = document.createElement("td");
-      // salImportoTd.className = "text-end sal-importo";
       salImportoTd.className = "sal-importo";
       salImportoTd.textContent = "0,00";
 
       const finirePercentTd = document.createElement("td");
-      // finirePercentTd.className = "text-end";
       finirePercentTd.textContent = "%";
 
       const finireImportoTd = document.createElement("td");
-      // finireImportoTd.className = "text-end";
       finireImportoTd.textContent = baseCalcValue.toLocaleString("it-IT", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
@@ -276,16 +186,7 @@ class TableRenderer {
       input.addEventListener("input", () => {
         let val = parseFloat(input.value.replace(",", "."));
         val = isNaN(val) ? 0 : val;
-
         input.value = val;
-
-        if (val > 100 || val < 0) {
-          //input.classList.add("is-invalid");
-          //salTd.classList.add("table-danger");
-        } else {
-          //input.classList.remove("is-invalid");
-          //salTd.classList.remove("table-danger");
-        }
 
         const percent = val / 100;
         salImportoTd.textContent = (baseCalcValue * percent).toLocaleString(
@@ -293,7 +194,6 @@ class TableRenderer {
           { minimumFractionDigits: 2, maximumFractionDigits: 2 }
         );
         finirePercentTd.textContent = ((1 - percent) * 100).toFixed(2) + "%";
-
         finireImportoTd.textContent = (
           baseCalcValue *
           (1 - percent)
@@ -302,7 +202,9 @@ class TableRenderer {
           maximumFractionDigits: 2,
         });
 
-        updateTableTotals();
+        // Cuando cambie el valor, se recalcula el total de la tabla
+        currentTableSalTotal = this._calculateTableSalTotal(tbody);
+        updateTableTotals(currentTableSalTotal);
       });
 
       tr.appendChild(salTd);
@@ -313,16 +215,28 @@ class TableRenderer {
       tbody.appendChild(tr);
     });
 
+    // Función interna para actualizar los totales en la fila de totales
+    const updateTableTotals = (total) => {
+      const totalRowElement = tbody.querySelector(".total-row");
+      if (totalRowElement) {
+        const totalCells = totalRowElement.querySelectorAll("td");
+        totalCells[tableHeaders.length + 1].textContent = total.toLocaleString(
+          "it-IT",
+          { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+        );
+      }
+    };
+
     const totalRow = document.createElement("tr");
     totalRow.classList.add("total-row", "table-info");
-
     for (let i = 0; i < tableHeaders.length + 4; i++) {
       totalRow.appendChild(document.createElement("td"));
     }
     tbody.appendChild(totalRow);
 
-    updateTableTotals();
-    return uniqueID;
+    // Aquí es donde devolvemos el ID y el total
+    return { sectionId: uniqueId, total: currentTableSalTotal };
+    console.log({sectionId})
   }
   _saveSalPercentages() {
     // Recolectar todos los datos SAL% de todas las tablas
