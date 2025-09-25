@@ -7,6 +7,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="style.css" />
   </head>
 
   <body class="container my-4">
@@ -22,35 +23,28 @@
           <p>
             <span id="committenteRagione" class="text-primary"></span><br />
             <span id="committenteIndirizzo" class="text-primary"></span><br />
-            <small id="committenteReferente"></small>
+            <!-- <small id="committenteReferente"></small> -->
           </p>
-
-          <h6 class="fw-bold mt-4">INFO PROGETTO</h6>
-          <p id="progettoDescrizione"></p>
-          <p><strong>Indirizzo:</strong> <span id="progettoIndirizzo"></span></p>
-          <p><strong>Inizio:</strong> <span id="dataInizio"></span></p>
-          <p><strong>Fine prevista:</strong> <span id="dataFine"></span></p>
         </div>
-
         <div class="col-md-6">
           <h6 class="fw-bold">L’IMPRESA</h6>
           <p>
             <span id="impresaRagione" class="text-primary"></span><br />
             <span id="impresaIndirizzo" class="text-primary"></span>
           </p>
-
-          <h6 class="fw-bold mt-4">RESPONSABILI</h6>
-          <p><strong>R.L. e CSE:</strong> <span id="committenteRL"></span></p>
-          <p><strong>Direttore dei lavori:</strong> <span id="committenteDL"></span></p>
-          <p><strong>Project Manager:</strong> <span id="committentePM"></span></p>
-          <p><strong>Direttore lavori Impresa:</strong> <span id="impresaDL"></span></p>
         </div>
+      </div>
+      <div class="row">
+        <h6 class="fw-bold mt-4">INFO PROGETTO</h6>
+        <p id="progettoDescrizione"></p>
+        <p><strong>Indirizzo:</strong> <span id="progettoIndirizzo"></span></p>
       </div>
 
       <hr class="my-4" />
       <div class="container mt-4">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-4">
+            <!-- certificati SAL -->
             <h4 class="mb-3">CERTIFICATI PRECEDENTI</h4>
             <table class="table table-bordered table-sm" id="precedenti-table">
               <thead class="table-light">
@@ -60,25 +54,194 @@
                   <th class="text-center">importo</th>
                 </tr>
               </thead>
-              <tbody>
-                </tbody>
+              <tbody></tbody>
             </table>
+
+            <!-- Assicurazioni Infortuni -->
+            <div class="mt-4">
+              <h5>Assicurazioni Infortuni</h5>
+              <table class="table table-bordered" id="assicurazioni-table">
+                <thead class="table-light">
+                  <tr>
+                    <th>Assicurazione</th>
+                    <th>Numero</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+
+              <!-- Fecha inizio - fine -->
+              <div class="mt-3">
+                <p>
+                  <strong>Inizio Lavori:</strong> <span id="dataInizio"></span>
+                </p>
+                <p>
+                  <strong>Termine ultimo:</strong> <span id="dataFine"></span>
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div class="col-md-6">
-            <h4 class="mb-3">CERTIFICATO DI PAGAMENTO</h4>
-            <p>
-              <strong>
-                Stato di Avanzamento Lavori N.<span id="numero-sal"></span>
-              </strong>
-            </p>
-            <p><strong>Data:</strong> <span id="data-sal"></span></p>
-            <p><strong>Importo:</strong> <span id="importo-sal"></span></p>
+          <div class="col-md-8">
+            <h4 class="mb-3">
+              CERTIFICATO DI PAGAMENTO N.<span id="certificato-numero">-</span>
+            </h4>
+            <table class="table table-bordered table-sm">
+              <tbody>
+                <tr>
+                  <td><strong>Stato di Avanzamento Lavori N.</strong></td>
+                  <td class="text-center">7</td>
+                  <td>A tutto il</td>
+                  <td class="text-end" id="data-fine"></td>
+                </tr>
+                <tr>
+                  <td><strong>Cod.</strong></td>
+                  <td colspan="2">
+                    Contratto del 29 gennaio 2024 alla predetta impresa
+                  </td>
+                  <td>SICEA S.r.l.</td>
+                </tr>
+                <tr>
+                  <td>A</td>
+                  <td colspan="2">
+                    l'esecuzione dei suindicati lavori, affidati per la somma
+                    complessiva di
+                  </td>
+                  <td class="text-end"><span id="totaleA">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>B</td>
+                  <td colspan="2">Oneri della sicurezza</td>
+                  <td class="text-end"><span id="totaleB">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>C</td>
+                  <td colspan="2">Ordine di variante n1 - 06.06.2024</td>
+                  <td class="text-end"><span id="totaleC">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>D</td>
+                  <td colspan="2">di cui al Corrispettivo in Appalto pari a</td>
+                  <td class="text-end"><span id="totaleD">0,00€</span></td>
+                </tr>
+                <tr colspan="4">
+                  Risultando dalla contabilità fino ad oggi i seguenti conteggi:
+                </tr>
+                <tr>
+                  <td>E</td>
+                  <td>LAVORI STRUTTURALI E OPERE CIVILI</td>
+                  <td>a contratto</td>
+                  <td class="text-end"><span id="totaleE">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>F</td>
+                  <td>IMPIANTO ELETTRICO</td>
+                  <td>a contratto</td>
+                  <td class="text-end"><span id="totaleF">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>G</td>
+                  <td>IMPIANTO MECCANICO</td>
+                  <td>a contratto</td>
+                  <td class="text-end"><span id="totaleG">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>H</td>
+                  <td>OdV1 del 06.06.24</td>
+                  <td></td>
+                  <td class="text-end"><span id="totaleH">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>I</td>
+                  <td>ONERI DELLA SICUREZZA</td>
+                  <td></td>
+                  <td class="text-end"><span id="totaleI">0,00€</span></td>
+                </tr>
+                <tr class="table-info fw-bold">
+                  <td>J</td>
+                  <td colspan="2">Sommano Complessivi</td>
+                  <td class="text-end"><span id="totaleJ">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>K.1</td>
+                  <td>Recupero anticipo 5% art.8.1 del Contratto</td>
+                  <td>Recupero previsto in 10 mesi</td>
+                  <td class="text-end"><span id="totaleK1">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>L.1</td>
+                  <td>Trattenute Opere 10% art.8.8 del Contratto</td>
+                  <td></td>
+                  <td class="text-end"><span id="totaleL1">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>L.2</td>
+                  <td>Trattenute Opere 0,5% art.8.8 del Contratto</td>
+                  <td></td>
+                  <td class="text-end"><span id="totaleL2">0,00€</span></td>
+                </tr>
+                <tr class="table-info fw-bold">
+                  <td>M</td>
+                  <td colspan="2">Sommano (L+M)</td>
+                  <td class="text-end"><span id="totaleM">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>N</td>
+                  <td colspan="2">Rimane l'ammontare NETTO (K-O) di</td>
+                  <td class="text-end"><span id="totaleN">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>O</td>
+                  <td colspan="2">
+                    Dedotti i precedenti acconti, per complessivi
+                  </td>
+                  <td class="text-end"><span id="totaleO">0,00€</span></td>
+                </tr>
+                <tr>
+                  <td>P</td>
+                  <td colspan="2">Arrotondamenti</td>
+                  <td class="text-end"><span id="totaleP">0,00€</span></td>
+                </tr>
+                <tr class="table-success fw-bold">
+                  <td colspan="3">Rimane il credito dell'impresa di</td>
+                  <td class="text-end">
+                    <span id="totaleRimanente">0,00€</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <h5 class="mb-3">Dati SAL / Costi</h5>
+      <!-- Firmas -->
+      <div class="row mt-5 text-center" id="firmas-section">
+        <div class="col-4">
+          <p><strong>R.L. e CSE:</strong> <span id="committenteRL"></span></p>
+          <p>
+            <strong>Project Manager:</strong> <span id="committentePM"></span>
+          </p>
+        </div>
+
+        <div class="col-4">
+          <p>
+            <strong>Il Committente</strong><br />
+            <span id="committenteRagione" class="text-primary"></span><br />
+            <strong>Il Direttore dei Lavori</strong><br />
+            <span id="committenteReferente"></span>
+          </p>
+        </div>
+
+        <div class="col-4">
+          <p>
+            <strong>Impresa</strong><br />
+            <span id="impresaRagione" class="text-primary"></span><br />
+            <strong>Direttore lavori Impresa:</strong>
+            <span id="impresaReferente"></span>
+          </p>
+        </div>
+      </div>
+      <!-- <h5 class="mb-3">Dati SAL / Costi</h5>
       <div class="table-responsive">
         <table class="table table-bordered table-sm">
           <thead class="table-light">
@@ -89,8 +252,7 @@
               <th>Totale</th>
             </tr>
           </thead>
-          <tbody id="salTableBody">
-            </tbody>
+          <tbody id="salTableBody"></tbody>
           <tfoot class="table-light">
             <tr>
               <td colspan="3" class="text-end fw-bold">Totale Generale</td>
@@ -98,7 +260,7 @@
             </tr>
           </tfoot>
         </table>
-      </div>
+      </div> -->
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>

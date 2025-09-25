@@ -44,7 +44,7 @@ class SummaryTableGenerator {
 
     let grandTotalSal = 0;
 
-    allTablesSalTotals.forEach((item) => {
+    allTablesSalTotals.forEach((item, index) => {
       const row = document.createElement("tr");
       const tdTitle = document.createElement("td");
 
@@ -66,8 +66,18 @@ class SummaryTableGenerator {
         "btn-outline-secondary",
         "ms-2"
       );
+      // jumpButton.onclick = () => {
+      //   const targetElement = document.getElementById(item.sectionId);
+      //   if (targetElement) {
+      //     targetElement.scrollIntoView({ behavior: "smooth", block: "start" },60);
+      //   }
+      // };
       jumpButton.onclick = () => {
-        const targetElement = document.getElementById(item.sectionId);
+        let targetId = item.sectionId;
+        if (!targetId && index === 0) {
+          targetId = "tableContainer"; // fallback para la primera fila
+        }
+        const targetElement = document.getElementById(targetId);
         if (targetElement) {
           targetElement.scrollIntoView({ behavior: "smooth", block: "start" },60);
         }

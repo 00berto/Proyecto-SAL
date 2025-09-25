@@ -84,11 +84,38 @@ class TableRenderer {
     )}`;
     tableWrapper.id = uniqueID;
 
+    // if (titleText) {
+    //   const title = document.createElement("h4");
+    //   title.textContent = titleText;
+    //   const titleID = `title-${uniqueID}`;
+    //   title.id = titleID;
+    //   tableWrapper.appendChild(title);
+
+    //   this.allTablesSalTotals.push({
+    //     title: titleText || "Sin Título de Sección",
+    //     //salTotal: tempTotals["Importo SAL"],
+    //     sectionId: titleID, // 👈 apunta al h4
+    //   });
+    //}
+
+    //-----cambio por probar funcionalidad de la primera tabella sin titulo
+    let sectionId;
     if (titleText) {
       const title = document.createElement("h4");
       title.textContent = titleText;
+      sectionId = `title-${uniqueID}`;
+      title.id = sectionId;
       tableWrapper.appendChild(title);
+    } else {
+      sectionId = uniqueID; // 👈 usamos el wrapper
     }
+
+    //carga temprana?????????
+    // this.allTablesSalTotals.push({
+    //   title: titleText || "Sin Título de Sección",
+    //   salTotal: tempTotals["Importo SAL"],
+    //   sectionId: sectionId,
+    // });
 
     const table = document.createElement("table");
     table.className = "table table-bordered table-sm mb-1";
@@ -212,12 +239,15 @@ class TableRenderer {
         } else {
           this.allTablesSalTotals.push({
             title: titleText || "Sin Título de Sección",
-            salTotal: tempTotals["Importo SAL"],
+            salTotal: tempTotals["Importo SAL"], 
             sectionId: uniqueID,
           });
         }
 
+        //-------------//
+        //imprimimos allTablesSalTotals
         console.log("allTablesSalTotals:", this.allTablesSalTotals);
+
         window.addEventListener("load", () => {
           this.summaryTableGenerator.generate(this.allTablesSalTotals);
         });
