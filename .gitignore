@@ -1,2 +1,10 @@
 # carpetas a ignorar en las subidas
 ignore/
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Vercel
+.vercel
+.env*.local
