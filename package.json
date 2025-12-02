@@ -7,7 +7,7 @@
     "dev": "vercel dev"
   },
   "dependencies": {
-    "@vercel/postgres": "^0.10.0"
+    "@neondatabase/serverless": "^0.10.0"
   },
   "devDependencies": {
     "vercel": "^33.0.0"
