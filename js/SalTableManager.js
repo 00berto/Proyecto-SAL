@@ -245,17 +245,19 @@ class SalTableManager {
   }
 
   _addInputListeners() {
-    const originalSalInputs = document.querySelectorAll('#tableContainer input.sal-input');
-    originalSalInputs.forEach(input => {
-      input.addEventListener('input', () => {
+    const originalSalInputs = document.querySelectorAll(
+      "#tableContainer input.sal-input"
+    );
+    originalSalInputs.forEach((input) => {
+      input.addEventListener("input", () => {
         this._updateAllTables();
       });
     });
   }
 
   _updateAllTables() {
-    this.generatedSalTables.forEach(tableInfo => {
-      const tbody = tableInfo.element.querySelector('tbody');
+    this.generatedSalTables.forEach((tableInfo) => {
+      const tbody = tableInfo.element.querySelector("tbody");
       this._populateSalTable(tbody);
     });
     this._validateSalRowsBetweenTables();
@@ -411,7 +413,7 @@ class SalTableManager {
     const lastSalTableElement = lastSalTableInfo.element.querySelector("table");
     const sections = [];
     let currentSectionTitle = "N/A";
-    let currentSectionId = '';
+    let currentSectionId = "";
 
     const allRows = lastSalTableElement.querySelectorAll("tbody tr");
     allRows.forEach((row) => {
@@ -432,11 +434,14 @@ class SalTableManager {
       }
     });
 
+    //--------
+    console.log(sections)
     this.summaryTableGenerator.generate(sections);
   }
 
   getExportableSalData() {
-    const lastSalTableInfo = this.generatedSalTables[this.generatedSalTables.length - 1];
+    const lastSalTableInfo =
+      this.generatedSalTables[this.generatedSalTables.length - 1];
 
     if (!lastSalTableInfo) {
       return null;
@@ -444,17 +449,21 @@ class SalTableManager {
 
     const lastSalTableElement = lastSalTableInfo.element.querySelector("table");
     const lastRow = lastSalTableElement.querySelector("tbody tr:last-child");
-    const totalGlobalCell = lastRow ? lastRow.querySelector("td:last-child") : null;
-    
+    const totalGlobalCell = lastRow
+      ? lastRow.querySelector("td:last-child")
+      : null;
+
     const salTitle = lastSalTableInfo.title;
     const salNumberMatch = salTitle.match(/\d+/);
     const numeroSAL = salNumberMatch ? parseInt(salNumberMatch[0], 10) : 0;
-    
-    const totalGlobalSAL = totalGlobalCell ? this._parseNumber(totalGlobalCell.textContent) : 0;
+
+    const totalGlobalSAL = totalGlobalCell
+      ? this._parseNumber(totalGlobalCell.textContent)
+      : 0;
 
     const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, "0");
+    const month = String(today.getMonth() + 1).padStart(2, "0");
     const year = today.getFullYear();
     const fechaModificacion = `${day}.${month}.${year}`;
 
@@ -475,6 +484,39 @@ class SalTableManager {
       return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
     }
     return parseFloat(str) || 0;
+  }
+  getAllExportableSalData() {
+    return this.generatedSalTables
+      .map((tableInfo, index) => {
+        const table = tableInfo.element.querySelector("table");
+        if (!table) return null;
+
+        const totalRow = table.querySelector("tbody tr:last-child");
+        const totalCell = totalRow
+          ? totalRow.querySelector("td:last-child")
+          : null;
+        const totalGlobalSAL = totalCell
+          ? this._parseNumber(totalCell.textContent)
+          : 0;
+
+        const salNumberMatch = tableInfo.title.match(/\d+/);
+        const numeroSAL = salNumberMatch
+          ? parseInt(salNumberMatch[0], 10)
+          : index + 1;
+
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, "0");
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const year = today.getFullYear();
+        const fechaModificacion = `${day}.${month}.${year}`;
+
+        return {
+          numeroSAL,
+          totalGlobalSAL,
+          fechaModificacion,
+        };
+      })
+      .filter((item) => item !== null);
   }
 
   _formatNumber(num) {
@@ -499,40 +541,40 @@ function saveSalToHistory(salManager) {
   }
 }
 
-// Actualizar tabla de precedenti
-function updatePrecedentiTable() {
-  const tbody = document.querySelector("#precedenti-table tbody");
-  if (!tbody) return;
+// // Actualizar tabla de precedenti
+// function updatePrecedentiTable() {
+//   const tbody = document.querySelector("#precedenti-table tbody");
+//   if (!tbody) return;
 
-  tbody.innerHTML = "";
+//   tbody.innerHTML = "";
 
-  certificatiPrecedenti.forEach((item, index) => {
-    const row = document.createElement("tr");
+//   certificatiPrecedenti.forEach((item, index) => {
+//     const row = document.createElement("tr");
 
-    // n.
-    const cellN = document.createElement("td");
-    cellN.textContent = index + 1;
-    cellN.classList.add("text-center");
-    row.appendChild(cellN);
+//     // n.
+//     const cellN = document.createElement("td");
+//     cellN.textContent = index + 1;
+//     cellN.classList.add("text-center");
+//     row.appendChild(cellN);
 
-    // data
-    const cellData = document.createElement("td");
-    cellData.textContent = item.fechaModificacion;
-    cellData.classList.add("text-center");
-    row.appendChild(cellData);
+//     // data
+//     const cellData = document.createElement("td");
+//     cellData.textContent = item.fechaModificacion;
+//     cellData.classList.add("text-center");
+//     row.appendChild(cellData);
 
-    // importo
-    const cellImporto = document.createElement("td");
-    cellImporto.textContent = item.totalGlobalSAL.toLocaleString("it-IT", {
-      style: "currency",
-      currency: "EUR"
-    });
-    cellImporto.classList.add("text-end");
-    row.appendChild(cellImporto);
+//     // importo
+//     const cellImporto = document.createElement("td");
+//     cellImporto.textContent = item.totalGlobalSAL.toLocaleString("it-IT", {
+//       style: "currency",
+//       currency: "EUR",
+//     });
+//     cellImporto.classList.add("text-end");
+//     row.appendChild(cellImporto);
 
-    tbody.appendChild(row);
-  });
-}
+//     tbody.appendChild(row);
+//   });
+// }
 
 // Actualizar el certificado actual
 function updateCertificatoHeader(salManager) {
@@ -540,9 +582,10 @@ function updateCertificatoHeader(salManager) {
   if (data) {
     document.getElementById("numero-sal").textContent = data.numeroSAL;
     document.getElementById("data-sal").textContent = data.fechaModificacion;
-    document.getElementById("importo-sal").textContent = data.totalGlobalSAL.toLocaleString("it-IT", {
-      style: "currency",
-      currency: "EUR"
-    });
+    document.getElementById("importo-sal").textContent =
+      data.totalGlobalSAL.toLocaleString("it-IT", {
+        style: "currency",
+        currency: "EUR",
+      });
   }
 }

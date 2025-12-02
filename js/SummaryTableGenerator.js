@@ -5,14 +5,15 @@ class SummaryTableGenerator {
   }
 
   generate(allTablesSalTotals) {
-
     const existingSummaryTable = document.getElementById("summaryTableWrapper");
     if (existingSummaryTable) {
       existingSummaryTable.remove();
     }
 
     if (allTablesSalTotals.length === 0) {
-      console.log("SummaryTableGenerator: No hay datos para generar la tabla resumen.");
+      console.log(
+        "SummaryTableGenerator: No hay datos para generar la tabla resumen."
+      );
       return;
     }
 
@@ -43,7 +44,7 @@ class SummaryTableGenerator {
 
     let grandTotalSal = 0;
 
-    allTablesSalTotals.forEach((item) => {
+    allTablesSalTotals.forEach((item, index) => {
       const row = document.createElement("tr");
       const tdTitle = document.createElement("td");
 
@@ -59,11 +60,26 @@ class SummaryTableGenerator {
       const jumpButton = document.createElement("button");
       jumpButton.textContent = "↗️";
       jumpButton.title = "Vai alla sezione";
-      jumpButton.classList.add("btn", "btn-sm", "btn-outline-secondary", "ms-2");
+      jumpButton.classList.add(
+        "btn",
+        "btn-sm",
+        "btn-outline-secondary",
+        "ms-2"
+      );
+      // jumpButton.onclick = () => {
+      //   const targetElement = document.getElementById(item.sectionId);
+      //   if (targetElement) {
+      //     targetElement.scrollIntoView({ behavior: "smooth", block: "start" },60);
+      //   }
+      // };
       jumpButton.onclick = () => {
-        const targetElement = document.getElementById(item.sectionId);
+        let targetId = item.sectionId;
+        if (!targetId && index === 0) {
+          targetId = "tableContainer"; // fallback para la primera fila
+        }
+        const targetElement = document.getElementById(targetId);
         if (targetElement) {
-          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          targetElement.scrollIntoView({ behavior: "smooth", block: "start" },60);
         }
       };
 
@@ -101,7 +117,6 @@ class SummaryTableGenerator {
     summaryTable.appendChild(tbody);
     summaryTableWrapper.appendChild(summaryTable);
     this.container.appendChild(summaryTableWrapper);
-    
   }
 
   reset() {
