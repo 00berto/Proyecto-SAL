@@ -44,31 +44,6 @@ body {
     -webkit-overflow-scrolling: touch;
 
     & table {
-        table-layout: auto;
-        width: 100%;
-        font-size: 0.6rem;
-        margin-bottom: 0;
-    }
-
-    & table th,
-    & table td {
-        padding: 0.4rem;
-        vertical-align: middle;
-        text-align: center;
-        /* Remove fixed height for better responsiveness */
-        min-height: 30px;
-        line-height: 1.2;
-    }
-
-    & table td {
-        font-size: 0.4rem;
-        padding: 0.25rem;
-    }
-
-    & h3,
-    & h4 {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
         margin-top: 0.5rem;
     }
 }

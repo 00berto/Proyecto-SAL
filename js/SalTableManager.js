@@ -58,6 +58,9 @@ class SalTableManager {
     this._addSalTableCheckbox(salTableId, newTableTitle);
     this._validateSalRowsBetweenTables();
     this._updateSummaryTable();
+    
+    // Synchronize row heights with Excel tables
+    setTimeout(() => this._synchronizeRowHeights(), 100);
   }
 
   deleteLastSalTable() {
@@ -262,6 +265,57 @@ class SalTableManager {
     });
     this._validateSalRowsBetweenTables();
     this._updateSummaryTable();
+    
+    // Synchronize row heights after all tables are updated
+    this._synchronizeRowHeights();
+  }
+
+  _synchronizeRowHeights() {
+    // Get all original table wrappers
+    const originalTableWrappers = document.querySelectorAll(
+      "#tableContainer .table-wrapper.original-table-wrapper"
+    );
+
+    // For each SAL table
+    this.generatedSalTables.forEach((salTableInfo) => {
+      const salTable = salTableInfo.element.querySelector("table");
+      const salRows = Array.from(salTable.querySelectorAll("tbody tr"));
+      
+      let salRowIndex = 0;
+
+      // Iterate through each original table
+      originalTableWrappers.forEach((originalWrapper) => {
+        const originalTable = originalWrapper.querySelector("table");
+        const originalRows = Array.from(
+          originalTable.querySelectorAll("tbody tr:not(.total-row)")
+        );
+
+        // Sync each data row
+        originalRows.forEach((originalRow) => {
+          if (salRowIndex < salRows.length) {
+            const salRow = salRows[salRowIndex];
+            
+            // Skip section headers and total rows in SAL table
+            if (
+              !salRow.classList.contains("table-section-header") &&
+              !salRow.classList.contains("sal-copy-total-row") &&
+              salRow.children.length > 0
+            ) {
+              // Get the height of the original row
+              const originalHeight = originalRow.offsetHeight;
+              
+              // Set the same height to the SAL row
+              salRow.style.height = `${originalHeight}px`;
+            }
+            
+            salRowIndex++;
+          }
+        });
+
+        // Skip section header and total row in SAL table
+        salRowIndex += 2; // +1 for section header, +1 for total row
+      });
+    });
   }
 
   _validateSalRowsBetweenTables() {
