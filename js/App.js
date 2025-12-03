@@ -11,6 +11,8 @@ class App {
     this.tablaSalBtn = document.getElementById("tablaSalBtn");
     this.deleteSalBtn = document.getElementById("deleteSalBtn");
     this.exportDataBtn = document.getElementById("exportDataBtn");
+    this.saveProjectBtn = document.getElementById("saveProjectBtn");
+    this.loadProjectBtn = document.getElementById("loadProjectBtn");
 
     this.tableContainer = document.getElementById("tableContainer");
     this.salCopiesContainer = document.getElementById("salCopiesContainer");
@@ -32,6 +34,9 @@ class App {
       this.salTablesCheckboxes,
       this.salTablesSelectionDiv
     );
+
+    // Initialize ProjectManager
+    this.projectManager = new ProjectManager(this);
 
     // 3. Ocultar elementos al inicio
     this.printPdfBtn.style.display = "none";
@@ -65,6 +70,20 @@ class App {
         this.exportDataBtn.addEventListener(
             "click",
             this._handleExportData.bind(this)
+        );
+    }
+
+    if (this.saveProjectBtn) {
+        this.saveProjectBtn.addEventListener(
+            "click",
+            this._handleSaveProject.bind(this)
+        );
+    }
+
+    if (this.loadProjectBtn) {
+        this.loadProjectBtn.addEventListener(
+            "click",
+            this._handleLoadProject.bind(this)
         );
     }
   }
@@ -109,6 +128,9 @@ class App {
       this.tableRenderer.renderTables(data, headers);
       this.printPdfBtn.style.display = "block";
       this.tablaSalBtn.style.display = "block";
+      if (this.saveProjectBtn) {
+        this.saveProjectBtn.style.display = "block";
+      }
     } catch (error) {
       alert(`Error al procesar el archivo: ${error.message}`);
       console.error("Error al procesar el archivo:", error);
@@ -168,6 +190,68 @@ class App {
       }
     } else {
       alert("No hay datos SAL para exportar.");
+    }
+  }
+
+  async _handleSaveProject() {
+    const projectName = prompt("Nombre del progetto:");
+    if (!projectName) {
+      return;
+    }
+
+    const result = await this.projectManager.saveProject(projectName);
+    if (result.success) {
+      alert(`✅ Progetto "${projectName}" salvato correttamente!`);
+    } else {
+      alert(`❌ Errore: ${result.message}`);
+    }
+  }
+
+  async _handleLoadProject() {
+    const modal = new bootstrap.Modal(document.getElementById('loadProjectModal'));
+    const projectsList = document.getElementById('projectsList');
+    
+    // Show loading
+    projectsList.innerHTML = '<p class="text-center text-muted">Caricamento...</p>';
+    modal.show();
+
+    // Load projects list
+    const result = await this.projectManager.listProjects();
+    
+    if (result.success && result.projects.length > 0) {
+      projectsList.innerHTML = '';
+      
+      result.projects.forEach(project => {
+        const projectItem = document.createElement('button');
+        projectItem.className = 'list-group-item list-group-item-action';
+        projectItem.innerHTML = `
+          <div class="d-flex w-100 justify-content-between">
+            <h6 class="mb-1">${project.name}</h6>
+            <small>${new Date(project.updated_at).toLocaleDateString('it-IT')}</small>
+          </div>
+          <small class="text-muted">Creato: ${new Date(project.created_at).toLocaleDateString('it-IT')}</small>
+        `;
+        
+        projectItem.addEventListener('click', async () => {
+          modal.hide();
+          const loadResult = await this.projectManager.loadProject(project.id);
+          if (loadResult.success) {
+            alert(`✅ Progetto "${project.name}" caricato correttamente!`);
+            // Show save button after loading
+            if (this.saveProjectBtn) {
+              this.saveProjectBtn.style.display = 'block';
+            }
+          } else {
+            alert(`❌ Errore: ${loadResult.message}`);
+          }
+        });
+        
+        projectsList.appendChild(projectItem);
+      });
+    } else if (result.success && result.projects.length === 0) {
+      projectsList.innerHTML = '<p class="text-center text-muted">Nessun progetto salvato.</p>';
+    } else {
+      projectsList.innerHTML = `<p class="text-center text-danger">Errore: ${result.message}</p>`;
     }
   }
 }
