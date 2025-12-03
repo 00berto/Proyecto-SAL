@@ -10,8 +10,8 @@ class App {
     this.printPdfBtn = document.getElementById("printPdfBtn");
     this.tablaSalBtn = document.getElementById("tablaSalBtn");
     this.deleteSalBtn = document.getElementById("deleteSalBtn");
-    this.exportDataBtn = document.getElementById("exportDataBtn");
     this.saveProjectBtn = document.getElementById("saveProjectBtn");
+    this.saveProjectBtn2 = document.getElementById("saveProjectBtn2");
     this.loadProjectBtn = document.getElementById("loadProjectBtn");
 
     this.tableContainer = document.getElementById("tableContainer");
@@ -44,8 +44,8 @@ class App {
     this.deleteSalBtn.style.display = "none";
     this.salTablesSelectionDiv.style.display = "none";
     
-    if (this.exportDataBtn) {
-        this.exportDataBtn.style.display = "none";
+    if (this.saveProjectBtn2) {
+        this.saveProjectBtn2.style.display = "none";
     }
 
     this._addEventListeners();
@@ -66,10 +66,10 @@ class App {
       this._handleDeleteSalTable.bind(this)
     );
     
-    if (this.exportDataBtn) {
-        this.exportDataBtn.addEventListener(
+    if (this.saveProjectBtn2) {
+        this.saveProjectBtn2.addEventListener(
             "click",
-            this._handleExportData.bind(this)
+            this._handleSaveProject.bind(this)
         );
     }
 
@@ -95,8 +95,8 @@ class App {
     this.tablaSalBtn.style.display = "none";
     this.deleteSalBtn.style.display = "none";
     this.salTablesSelectionDiv.style.display = "none";
-    if (this.exportDataBtn) {
-        this.exportDataBtn.style.display = "none";
+    if (this.saveProjectBtn2) {
+        this.saveProjectBtn2.style.display = "none";
     }
 
     this.tableRenderer.allTablesSalTotals = [];
@@ -141,8 +141,8 @@ class App {
   _handleCreateSalTable() {
     this.salTableManager.createSalCopyTable();
     this.deleteSalBtn.style.display = "block";
-    if (this.exportDataBtn) {
-        this.exportDataBtn.style.display = "block";
+    if (this.saveProjectBtn2) {
+        this.saveProjectBtn2.style.display = "block";
     }
   }
 
@@ -150,8 +150,8 @@ class App {
     this.salTableManager.deleteLastSalTable();
     if (this.salTableManager.salTableCounter === 0) {
       this.deleteSalBtn.style.display = "none";
-      if (this.exportDataBtn) {
-          this.exportDataBtn.style.display = "none";
+      if (this.saveProjectBtn2) {
+          this.saveProjectBtn2.style.display = "none";
       }
     }
   }
@@ -175,22 +175,6 @@ class App {
     }
 
     PdfGenerator.generatePdf(tablesToPrint, "Reporte_Completo_SAL.pdf");
-  }
-
-  _handleExportData() {
-    const salData = this.salTableManager.getExportableSalData();
-
-    if (salData) {
-      try {
-        localStorage.setItem("salExportData", JSON.stringify(salData));
-        alert("¡Datos SAL exportados correctamente y guardados!");
-      } catch (error) {
-        console.error("Error al guardar en localStorage:", error);
-        alert("Error al guardar los datos exportados.");
-      }
-    } else {
-      alert("No hay datos SAL para exportar.");
-    }
   }
 
   async _handleSaveProject() {
