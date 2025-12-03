@@ -17,49 +17,77 @@ body {
 .tabla-scale {
     padding-left: 0;
     padding-right: 0;
-    overflow: scroll;
+}
+
+/* Better responsive container */
+@media (max-width: 992px) {
+
+    .col-md-8,
+    .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .tabla-scale {
+        margin-bottom: 2rem;
+    }
 }
 
 /* Estilos para el contenedor individual de cada tabla (original y SAL) */
 .table-wrapper {
-    /* padding: 15px; */
     margin-bottom: 15px;
     border: 1px solid #dee2e6;
-    /* border-radius: 0.25rem; */
     background-color: #fff;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     box-sizing: border-box;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 
-
     & table {
-        table-layout: fixed;
+        table-layout: auto;
         width: 100%;
         font-size: 0.6rem;
+        margin-bottom: 0;
     }
 
     & table th,
     & table td {
         padding: 0.4rem;
-        /* width: 90px; */
-        height: 62px;
         vertical-align: middle;
         text-align: center;
+        /* Remove fixed height for better responsiveness */
+        min-height: 30px;
+        line-height: 1.2;
     }
 
     & table td {
         font-size: 0.4rem;
-        padding: 0.1rem;
-     
-
+        padding: 0.25rem;
     }
 
-    /* Ajusta también los títulos dentro de los wrappers si se ven muy grandes */
     & h3,
     & h4 {
         font-size: 1.2rem;
         margin-bottom: 0.5rem;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-wrapper {
+        & table {
+            font-size: 0.5rem;
+        }
+
+        & table th,
+        & table td {
+            padding: 0.3rem;
+        }
+
+        & table td {
+            font-size: 0.35rem;
+        }
     }
 }
 
@@ -172,4 +200,3 @@ td.text-end {
 .container-sm {
     max-width: 100%;
 }
-
