@@ -130,7 +130,16 @@ class ProjectManager {
   _getCompanyData() {
     // Get company data from localStorage (from dati.html)
     const storedData = localStorage.getItem('certificatoDati');
-    return storedData ? JSON.parse(storedData) : null;
+    const companyData = storedData ? JSON.parse(storedData) : null;
+    
+    // Also include SAL history
+    const salHistory = localStorage.getItem('historialSAL');
+    const historialSAL = salHistory ? JSON.parse(salHistory) : [];
+    
+    return {
+      certificatoDati: companyData,
+      historialSAL: historialSAL
+    };
   }
 
   async _restoreExcelData(excelData) {
@@ -182,7 +191,14 @@ class ProjectManager {
       return;
     }
 
-    // Save to localStorage so dati.html can access it
-    localStorage.setItem('certificatoDati', JSON.stringify(companyData));
+    // Restore company/project data
+    if (companyData.certificatoDati) {
+      localStorage.setItem('certificatoDati', JSON.stringify(companyData.certificatoDati));
+    }
+    
+    // Restore SAL history
+    if (companyData.historialSAL) {
+      localStorage.setItem('historialSAL', JSON.stringify(companyData.historialSAL));
+    }
   }
 }
