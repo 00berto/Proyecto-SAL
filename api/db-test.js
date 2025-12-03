@@ -2,8 +2,11 @@ import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
   try {
-    // Neon uses DATABASE_URL by default
-    const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+    // Neon uses DATABASE_URL by default, but Vercel prefixes it with the database name
+    const databaseUrl = process.env.sal_DB_DATABASE_URL || 
+                        process.env.sal_DB_POSTGRES_URL ||
+                        process.env.DATABASE_URL || 
+                        process.env.POSTGRES_URL;
     
     if (!databaseUrl) {
       // Debug: show what env vars are available
