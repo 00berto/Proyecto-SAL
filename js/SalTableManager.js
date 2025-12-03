@@ -293,7 +293,7 @@ class SalTableManager {
       const salTitle = salWrapper.querySelector("h4");
       const salTable = salWrapper.querySelector("table");
       const salThead = salTable.querySelector("thead");
-      const salRows = Array.from(salTable.querySelectorAll("tbody tr"));
+      const salTbody = salTable.querySelector("tbody");
       
       // Synchronize header heights
       if (salTitle && salThead) {
@@ -308,50 +308,53 @@ class SalTableManager {
           // Add padding to SAL title to match Excel header height
           const currentPadding = parseFloat(window.getComputedStyle(salTitle).paddingBottom) || 0;
           salTitle.style.paddingBottom = `${currentPadding + heightDifference}px`;
-        } else if (heightDifference < 0) {
-          // Excel header is smaller, add padding to Excel title
-          // (This case is less common but handled for completeness)
-          const excelTitles = Array.from(document.querySelectorAll("#tableContainer .table-wrapper.original-table-wrapper h4"));
-          excelTitles.forEach(title => {
-            const currentPadding = parseFloat(window.getComputedStyle(title).paddingBottom) || 0;
-            title.style.paddingBottom = `${currentPadding + Math.abs(heightDifference)}px`;
-          });
         }
       }
       
-      let salRowIndex = 0;
-
-      // Iterate through each original table
-      originalTableWrappers.forEach((originalWrapper) => {
+      // Build a mapping of Excel rows to SAL rows
+      const rowMapping = [];
+      
+      originalTableWrappers.forEach((originalWrapper, sectionIndex) => {
         const originalTable = originalWrapper.querySelector("table");
-        const originalRows = Array.from(
-          originalTable.querySelectorAll("tbody tr:not(.total-row)")
+        const originalTbody = originalTable.querySelector("tbody");
+        const originalDataRows = Array.from(
+          originalTbody.querySelectorAll("tr:not(.total-row)")
         );
-
-        // Sync each data row
-        originalRows.forEach((originalRow) => {
-          if (salRowIndex < salRows.length) {
-            const salRow = salRows[salRowIndex];
-            
-            // Skip section headers and total rows in SAL table
-            if (
-              !salRow.classList.contains("table-section-header") &&
-              !salRow.classList.contains("sal-copy-total-row") &&
-              salRow.children.length > 0
-            ) {
-              // Get the height of the original row
-              const originalHeight = originalRow.offsetHeight;
-              
-              // Set the same height to the SAL row
-              salRow.style.height = `${originalHeight}px`;
-            }
-            
-            salRowIndex++;
-          }
+        
+        // For each data row in this Excel section
+        originalDataRows.forEach((excelRow) => {
+          rowMapping.push({
+            type: 'data',
+            excelRow: excelRow,
+            sectionIndex: sectionIndex
+          });
         });
-
-        // Skip section header and total row in SAL table
-        salRowIndex += 2; // +1 for section header, +1 for total row
+      });
+      
+      // Now map SAL rows to Excel rows
+      const salRows = Array.from(salTbody.querySelectorAll("tr"));
+      let excelRowIndex = 0;
+      
+      salRows.forEach((salRow) => {
+        // Skip spacer, section headers, total rows, and grand total rows
+        if (
+          salRow.classList.contains("table-section-header") ||
+          salRow.classList.contains("sal-copy-total-row") ||
+          salRow.classList.contains("table-primary") ||
+          salRow.children.length === 0 ||
+          (salRow.children.length === 1 && salRow.children[0].colSpan > 1)
+        ) {
+          // This is a special row, don't sync
+          return;
+        }
+        
+        // This is a data row, sync with corresponding Excel row
+        if (excelRowIndex < rowMapping.length) {
+          const mapping = rowMapping[excelRowIndex];
+          const excelHeight = mapping.excelRow.offsetHeight;
+          salRow.style.height = `${excelHeight}px`;
+          excelRowIndex++;
+        }
       });
     });
   }
