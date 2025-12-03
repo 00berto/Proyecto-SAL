@@ -25,6 +25,7 @@
         Nessun archivio selezionato
       </p>
       <div class="row mb-4 justify-content-start">
+        <!-- SAL columns are now integrated in Excel tables, no need for separate SAL tables
         <div class="col-auto">
           <button
             id="tablaSalBtn"
@@ -43,6 +44,7 @@
             Elimina la ultima Tabella SAL
           </button>
         </div>
+        -->
         <div class="col-auto">
           <button
             id="printPdfBtn"
@@ -85,21 +87,14 @@
         <p class="text-muted mt-2">Puoi selezionarne più di una</p>
       </div>
 
-      <div class="row mt-4 align-items-start">
-        <div class="col-md-8 tabla-scale">
-          <h3 class="mb-3">Tabella Excel</h3>
+      <div class="row mt-4">
+        <div class="col-12">
+          <h3 class="mb-3">Tabelle Excel con SAL</h3>
           <div
             id="tableContainer"
-            class="d-flex flex-wrap align-items-start text-center table-sm"
-            style="gap: 9px"
+            class="d-flex flex-column align-items-start"
+            style="gap: 1rem"
           ></div>
-        </div>
-
-        <div class="col-md-4 tabla-scale">
-          <h3 class="mb-3">Tabella SAL</h3>
-          <div class="justify-content-between align-items-start mb-3">
-            <div id="salCopiesContainer" class="table-sm"></div>
-          </div>
         </div>
       </div>
 
