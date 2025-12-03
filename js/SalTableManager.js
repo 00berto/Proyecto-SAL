@@ -276,10 +276,48 @@ class SalTableManager {
       "#tableContainer .table-wrapper.original-table-wrapper"
     );
 
+    if (originalTableWrappers.length === 0) return;
+
+    // Calculate total header height from first Excel table
+    const firstExcelWrapper = originalTableWrappers[0];
+    const firstExcelTitle = firstExcelWrapper.querySelector("h4");
+    const firstExcelThead = firstExcelWrapper.querySelector("table thead");
+    
+    const excelTitleHeight = firstExcelTitle ? firstExcelTitle.offsetHeight : 0;
+    const excelTheadHeight = firstExcelThead ? firstExcelThead.offsetHeight : 0;
+    const totalExcelHeaderHeight = excelTitleHeight + excelTheadHeight;
+
     // For each SAL table
     this.generatedSalTables.forEach((salTableInfo) => {
-      const salTable = salTableInfo.element.querySelector("table");
+      const salWrapper = salTableInfo.element;
+      const salTitle = salWrapper.querySelector("h4");
+      const salTable = salWrapper.querySelector("table");
+      const salThead = salTable.querySelector("thead");
       const salRows = Array.from(salTable.querySelectorAll("tbody tr"));
+      
+      // Synchronize header heights
+      if (salTitle && salThead) {
+        const salTitleHeight = salTitle.offsetHeight;
+        const salTheadHeight = salThead.offsetHeight;
+        const totalSalHeaderHeight = salTitleHeight + salTheadHeight;
+        
+        // Calculate the difference and adjust
+        const heightDifference = totalExcelHeaderHeight - totalSalHeaderHeight;
+        
+        if (heightDifference > 0) {
+          // Add padding to SAL title to match Excel header height
+          const currentPadding = parseFloat(window.getComputedStyle(salTitle).paddingBottom) || 0;
+          salTitle.style.paddingBottom = `${currentPadding + heightDifference}px`;
+        } else if (heightDifference < 0) {
+          // Excel header is smaller, add padding to Excel title
+          // (This case is less common but handled for completeness)
+          const excelTitles = Array.from(document.querySelectorAll("#tableContainer .table-wrapper.original-table-wrapper h4"));
+          excelTitles.forEach(title => {
+            const currentPadding = parseFloat(window.getComputedStyle(title).paddingBottom) || 0;
+            title.style.paddingBottom = `${currentPadding + Math.abs(heightDifference)}px`;
+          });
+        }
+      }
       
       let salRowIndex = 0;
 
