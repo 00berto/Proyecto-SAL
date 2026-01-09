@@ -175,3 +175,12 @@ td.text-end {
 .container-sm {
     max-width: 100%;
 }
+/* New styles for SAL History columns */
+.sal-history-header {
+    color: #343a40;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.sal-history-cell {
+    background-color: #f8f9fa; /* Slight off-white to distinguish from main data */
+}
