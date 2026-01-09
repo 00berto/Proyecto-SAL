@@ -15,7 +15,7 @@ class App {
     this.loadProjectBtn = document.getElementById("loadProjectBtn");
 
     this.tableContainer = document.getElementById("tableContainer");
-    this.salCopiesContainer = document.getElementById("salCopiesContainer");
+    // this.salCopiesContainer = document.getElementById("salCopiesContainer"); // REMOVED
     this.salTablesSelectionDiv = document.getElementById("salTablesSelection");
     this.salTablesCheckboxes = document.getElementById("salTablesCheckboxes");
     this.summaryContainer = document.getElementById("summaryContainer"); // Referencia al nuevo contenedor
@@ -29,7 +29,7 @@ class App {
       7 // BASE_CALC_COL_INDEX
     );
     this.salTableManager = new SalTableManager(
-      "salCopiesContainer",
+      null, // salCopiesContainerId is obsolete
       this.summaryTableGenerator,
       this.salTablesCheckboxes,
       this.salTablesSelectionDiv
@@ -104,7 +104,7 @@ class App {
     this.salTableManager.reset();
 
     this.tableContainer.innerHTML = "";
-    this.salCopiesContainer.innerHTML = "";
+    // this.salCopiesContainer.innerHTML = ""; // REMOVED
     this.summaryContainer.innerHTML = ""; // Limpiar también el nuevo contenedor de resumen
 
     if (!file) {
