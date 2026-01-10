@@ -25,8 +25,8 @@
         Nessun archivio selezionato
       </p>
       <div class="row mb-4 justify-content-start">
-        <!-- SAL columns are now integrated in Excel tables -->
-        <div class="col-auto" style="display: none;">
+        <!-- SAL columns are integrated, but we still need the buttons to CREATE the snapshot -->
+        <div class="col-auto">
           <button
             id="tablaSalBtn"
             class="btn btn-warning"
@@ -35,7 +35,7 @@
             Crear Tabella SAL
           </button>
         </div>
-        <div class="col-auto" style="display: none;">
+        <div class="col-auto">
           <button
             id="deleteSalBtn"
             class="btn btn-danger"
@@ -51,6 +51,7 @@
             style="display: none"
           >
             Stampa PDF
+          </button>
         </div>
         <div class="col-auto">
           <button
@@ -149,7 +150,7 @@
 
     <script src="js/ExcelProcessor.js"></script>
     <!-- <script src="js/SalValidationManager.js"></script> -->
-    <script src="js/TableRender.js"></script>
+    <script src="js/TableRenderer.js"></script>
     <script src="js/SalTableManager.js"></script>
     <script src="js/SummaryTableGenerator.js"></script>
 
