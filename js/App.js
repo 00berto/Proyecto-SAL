@@ -300,5 +300,4 @@ class App {
           alert(`❌ Errore durante l'eliminazione: ${result.message}`);
       }
   }
-  }
 }
