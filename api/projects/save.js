@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     console.error('Save error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to save project',
+      message: `Failed to save project: ${error.message}`,
       error: error.message
     });
   }

@@ -131,33 +131,66 @@ function updateCertificatoHeader(salData) {
 // ===== Inicialización al cargar la página =====
 document.addEventListener("DOMContentLoaded", () => {
   // 1️⃣ Cargar datos de empresa/proyecto
+  // 1️⃣ Cargar datos de empresa/proyecto
   const dati = JSON.parse(localStorage.getItem("certificatoDati")) || {};
-  document.getElementById("committenteRagione").textContent =
-    dati.committenteRagione || "";
-  document.getElementById("committenteIndirizzo").textContent =
-    dati.committenteIndirizzo || "";
-  document.getElementById("committenteReferente").textContent =
-    dati.committenteReferente || "";
-  document.getElementById("committenteRL").textContent =
-    dati.committenteRL || "";
-  document.getElementById("committenteDL").textContent =
-    dati.committenteDL || "";
-  document.getElementById("committentePM").textContent =
-    dati.committentePM || "";
-  document.getElementById("impresaRagione").textContent =
-    dati.impresaRagione || "";
-  document.getElementById("impresaIndirizzo").textContent =
-    dati.impresaIndirizzo || "";
-  document.getElementById("impresaDL").textContent = dati.impresaDL || "";
-  document.getElementById("progettoDescrizione").textContent =
-    dati.progettoDescrizione || "";
-  document.getElementById("progettoIndirizzo").textContent =
-    dati.progettoIndirizzo || "";
-  document.getElementById("dataInizio").textContent = dati.dataInizio || "";
-  document.getElementById("dataFine").textContent = dati.dataFine || "";
+  
+  // Committente
+  if (dati.committente) {
+    document.getElementById("committenteRagione").textContent = dati.committente.ragioneSociale || "";
+    document.getElementById("committenteIndirizzo").textContent = dati.committente.indirizzo || "";
+    document.getElementById("committenteReferente").textContent = dati.committente.referente || "";
+    document.getElementById("committenteRL").textContent = dati.committente.rlAndCse || "";
+    document.getElementById("committenteDL").textContent = dati.committente.direttoreLavori || "";
+    document.getElementById("committentePM").textContent = dati.committente.projectManager || "";
 
-  // 2️⃣ Cargar todos los SAL del manager
-  if (
+    // Signatures placeholders
+    if(document.getElementById("committenteRL_Firma")) document.getElementById("committenteRL_Firma").textContent = dati.committente.rlAndCse || "";
+    if(document.getElementById("committenteDL_Firma")) document.getElementById("committenteDL_Firma").textContent = dati.committente.direttoreLavori || "";
+    if(document.getElementById("impresaRagione_Firma")) document.getElementById("impresaRagione_Firma").textContent = dati.impresa.ragioneSociale || "";
+  }
+
+  // Impresa
+  if (dati.impresa) {
+    document.getElementById("impresaRagione").textContent = dati.impresa.ragioneSociale || "";
+    document.getElementById("impresaIndirizzo").textContent = dati.impresa.indirizzo || "";
+    document.getElementById("impresaReferente").textContent = dati.impresa.direttoreLavori || "";
+    // Note: ID impresaDL in HTML might need to check if it exists or maps to referente
+    const impresaDLEl = document.getElementById("impresaDL");
+    if(impresaDLEl) impresaDLEl.textContent = dati.impresa.direttoreLavori || ""; 
+  }
+
+  // Progetto
+  if (dati.progetto) {
+    document.getElementById("progettoDescrizione").textContent = dati.progetto.descrizione || "";
+    document.getElementById("progettoIndirizzo").textContent = dati.progetto.indirizzo || "";
+    
+    // Format Dates
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const [year, month, day] = dateString.split("-");
+        return `${day}/${month}/${year}`;
+    };
+
+    document.getElementById("dataInizio").textContent = formatDate(dati.progetto.dataInicio);
+    document.getElementById("dataFine").textContent = formatDate(dati.progetto.dataFinePrevista);
+  }
+
+  // 2️⃣ Cargar todos los SAL del manager o localStorage
+  const storedSalData = localStorage.getItem("currentProjectSalData");
+  if (storedSalData) {
+      const todosLosSal = JSON.parse(storedSalData);
+      
+      // Limpiar historial previo para evitar duplicados al recargar si se desea sincronización total
+      // Ojo: si queremos persistencia histórica más allá de la sesión actual, habría que gestionar diferente.
+      // Pero para este caso de uso parece que queremos reflejar el estado actual del proyecto.
+      certificatiPrecedenti = []; 
+      
+      todosLosSal.forEach((salData) => {
+        saveSalToHistory(salData);
+        // updateCertificatoSalTable(salData); // Si se necesita, pero updateCertificatoSalTable está definida dentro de populateSalTable scope
+      });
+      // Importante: saveSalToHistory ya actualiza la tabla y el header
+  } else if (
     window.salManager &&
     typeof window.salManager.getAllExportableSalData === "function"
   ) {
@@ -170,7 +203,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!salData.fechaModificacion)
         salData.fechaModificacion = new Date().toLocaleDateString("it-IT");
       saveSalToHistory(salData);
-      updateCertificatoSalTable(salData);
     });
   }
 

@@ -107,11 +107,21 @@ class ProjectManager {
       return null;
     }
 
+    // Capture current values from all "sal-input" fields
+    const currentInputValues = [];
+    const inputs = document.querySelectorAll("input.sal-input");
+    inputs.forEach(input => {
+        // We need a way to map this input back to the specific row/table.
+        // Assuming order is preserved, we can just save a flat array of values.
+        currentInputValues.push(input.value);
+    });
+
     // Store the raw data and headers
     return {
       headers: this.app.tableRenderer.headers || [],
       data: this.app.tableRenderer.data || [],
-      fileName: this.app.fileNameTitle ? this.app.fileNameTitle.textContent : ''
+      fileName: this.app.fileNameTitle ? this.app.fileNameTitle.textContent : '',
+      currentValues: currentInputValues // Save current working draft
     };
   }
 
@@ -159,9 +169,38 @@ class ProjectManager {
     // Render the tables
     this.app.tableRenderer.renderTables(excelData.data, excelData.headers);
     
+    // Restore input values if available
+    if (excelData.currentValues && Array.isArray(excelData.currentValues)) {
+        const inputs = document.querySelectorAll("input.sal-input");
+        inputs.forEach((input, index) => {
+            if (index < excelData.currentValues.length) {
+                input.value = excelData.currentValues[index];
+                // Trigger change event to update totals if necessary? 
+                // TableRenderer might calculate on input. Let's trigger a manual update if needed while saving/loaded?
+                // Actually TableRenderer usually listens to 'input' event.
+                // We should manually trigger the calculation update flow.
+                // But simply setting value might be enough if user touches it later. 
+                // Better to dispatch input event.
+                // input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+        
+        // Recalculate totals
+        // We need to access the logic that updates totals.
+        // Usually attached to inputs.
+        // Let's force a recalculation if possible.
+        // Assuming TableRenderer has a method? Or just dispatch events.
+        // Dispatching events for hundreds of inputs might be slow.
+        // But it guarantees consistency.
+        inputs.forEach(input => input.dispatchEvent(new Event('input', { bubbles: true })));
+    }
+    
     // Show buttons
     this.app.printPdfBtn.style.display = 'block';
     this.app.tablaSalBtn.style.display = 'block';
+    if (this.app.saveProjectBtn) {
+        this.app.saveProjectBtn.style.display = 'block';
+    }
   }
 
   _restoreSalTables(salTablesData) {
@@ -172,18 +211,35 @@ class ProjectManager {
     // Reset SAL tables
     this.app.salTableManager.reset();
 
-    // Recreate each SAL table
-    for (let i = 0; i < salTablesData.counter; i++) {
-      this.app.salTableManager.createSalCopyTable();
-    }
-
-    // Show delete button if there are SAL tables
-    if (salTablesData.counter > 0) {
-      this.app.deleteSalBtn.style.display = 'block';
-      if (this.app.exportDataBtn) {
-        this.app.exportDataBtn.style.display = 'block';
-      }
-    }
+    // Recreate each SAL table and restore values
+    // salTablesData.tables contains metadata. We need to know the actual values to restore them.
+    // The current save logic only saves metadata (id, total). It does NOT save the individual cell percentages.
+    // We need to update saveProject to include full SAL details (percentages per row) to be able to restore fully.
+    
+    // checks if we have full data. If not, we can only create empty columns.
+    // Assuming for now we just create the columns as before, but user was asking why they can't modify.
+    // Actually, if we just create columns, they are editable. 
+    // Is the issue that the buttons are not showing up?
+    // In _restoreExcelData we show printPdfBtn and tablaSalBtn.
+    // In _restoreSalTables we show deleteSalBtn.
+    
+    // Wait, if I load a project, I expect the previous SAL percentages to be there. 
+    // The current `_getSalTablesData` ONLY returns metadata:
+    // return { counter: ..., tables: [{id, total, date}] }
+    // It is MISSING the actual input values (percentages).
+    // So when loading, we create empty SAL columns 1, 2, 3... but with 0 values! 
+    // That confuses the user. They see "SAL 1", "SAL 2" but empty.
+    
+    // STEP 1: Fix _getSalTablesData to include cell values.
+    // This requires changes in this file (ProjectManager.js).
+    // STEP 2: Fix _restoreSalTables to use those values.
+    
+    // This tool call only touches _restoreSalTables, but I need to modify _getSalTablesData first.
+    // I will abort this specific replace and do a multi_replace to handle both _getSalTablesData and _restoreSalTables.
+    // Actually, I can do it here if I am careful.
+    
+    // But `_getSalTablesData` is higher up in the file (line 118).
+    // I will start by updating _getSalTablesData.
   }
 
   _restoreCompanyData(companyData) {

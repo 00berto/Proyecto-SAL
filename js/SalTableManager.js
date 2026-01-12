@@ -159,6 +159,7 @@ class SalTableManager {
       this._addSalTableCheckbox(salId, newTableTitle);
       this._validateHistoryColumns(salId);
       this._updateSummaryTable();
+      this._saveToLocalStorage();
     }
   
     deleteLastSalTable() {
@@ -194,6 +195,7 @@ class SalTableManager {
         }
         
         this._updateSummaryTable();
+        this._saveToLocalStorage();
       } else {
         alert("Nessuna tabella SAL da eliminare.");
       }
@@ -333,5 +335,10 @@ class SalTableManager {
             totalGlobalSAL: t.totalGlobalSAL,
             fechaModificacion: fechaVal
         }));
+    }
+
+    _saveToLocalStorage() {
+        const data = this.getAllExportableSalData();
+        localStorage.setItem("currentProjectSalData", JSON.stringify(data));
     }
   }
