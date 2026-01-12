@@ -328,13 +328,19 @@ class SalTableManager {
     }
     
     getAllExportableSalData() {
-        const today = new Date();
-        const fechaVal = `${String(today.getDate()).padStart(2,"0")}.${String(today.getMonth()+1).padStart(2,"0")}.${today.getFullYear()}`;
-        return this.generatedSalTables.map(t => ({
-            numeroSAL: t.id,
-            totalGlobalSAL: t.totalGlobalSAL,
-            fechaModificacion: fechaVal
-        }));
+        return this.generatedSalTables.map(t => {
+            // Use stored date if available, otherwise current date
+            const fechaVal = t.fechaModificacion || (() => {
+                const today = new Date();
+                return `${String(today.getDate()).padStart(2,"0")}.${String(today.getMonth()+1).padStart(2,"0")}.${today.getFullYear()}`;
+            })();
+            
+            return {
+                numeroSAL: t.id,
+                totalGlobalSAL: t.totalGlobalSAL,
+                fechaModificacion: fechaVal
+            };
+        });
     }
 
     _saveToLocalStorage() {

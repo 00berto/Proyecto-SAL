@@ -114,7 +114,10 @@ function updatePrecedentiTable() {
 function updateCertificatoHeader(salData) {
   if (!salData) return;
 
-  document.getElementById("numero-sal").textContent = salData.numeroSAL || "-";
+  const numSal = salData.numeroSAL || "-";
+  if(document.getElementById("numero-sal")) document.getElementById("numero-sal").textContent = numSal;
+  if(document.getElementById("numero-sal-box")) document.getElementById("numero-sal-box").textContent = numSal;
+
   document.getElementById("data-sal").textContent =
     salData.fechaModificacion || "-";
 

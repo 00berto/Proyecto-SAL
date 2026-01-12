@@ -13,6 +13,7 @@ class App {
     this.saveProjectBtn = document.getElementById("saveProjectBtn");
     this.saveProjectBtn2 = document.getElementById("saveProjectBtn2");
     this.loadProjectBtn = document.getElementById("loadProjectBtn");
+    this.deleteProjectBtn = document.getElementById("deleteProjectBtn");
 
     this.tableContainer = document.getElementById("tableContainer");
     // this.salCopiesContainer = document.getElementById("salCopiesContainer"); // REMOVED
@@ -86,6 +87,13 @@ class App {
             this._handleLoadProject.bind(this)
         );
     }
+
+    if (this.deleteProjectBtn) {
+        this.deleteProjectBtn.addEventListener(
+            "click",
+            this._handleDeleteProject.bind(this)
+        );
+    }
   }
 
   async _handleFileInputChange(e) {
@@ -97,6 +105,9 @@ class App {
     this.salTablesSelectionDiv.style.display = "none";
     if (this.saveProjectBtn2) {
         this.saveProjectBtn2.style.display = "none";
+    }
+    if (this.deleteProjectBtn) {
+        this.deleteProjectBtn.style.display = "none";
     }
 
     this.tableRenderer.allTablesSalTotals = [];
@@ -225,6 +236,9 @@ class App {
             if (this.saveProjectBtn) {
               this.saveProjectBtn.style.display = 'block';
             }
+            if (this.deleteProjectBtn) {
+              this.deleteProjectBtn.style.display = 'block';
+            }
           } else {
             alert(`❌ Errore: ${loadResult.message}`);
           }
@@ -237,5 +251,54 @@ class App {
     } else {
       projectsList.innerHTML = `<p class="text-center text-danger">Errore: ${result.message}</p>`;
     }
+    this.deleteProjectBtn = document.getElementById("deleteProjectBtn");
+
+    if (this.deleteProjectBtn) {
+        this.deleteProjectBtn.style.display = "none";
+        this.deleteProjectBtn.addEventListener(
+            "click",
+            this._handleDeleteProject.bind(this)
+        );
+    }
+  }
+
+  // ... (inside _handleFileInputChange, hide it)
+  // this.deleteProjectBtn.style.display = "none";
+
+  async _handleDeleteProject() {
+      if (!this.projectManager.currentProjectId) {
+          alert("Nessun progetto caricato da eliminare.");
+          return;
+      }
+      
+      if (!confirm(`Sei sicuro di voler eliminare il progetto "${this.projectManager.currentProjectName}"? Questa azione non può essere annullata.`)) {
+          return;
+      }
+      
+      const result = await this.projectManager.deleteProject(this.projectManager.currentProjectId);
+      if (result.success) {
+          alert("✅ Progetto eliminato correttamente.");
+          // Reset UI
+          this.fileNameTitle.textContent = "Nessun archivio selezionato";
+          this.printPdfBtn.style.display = "none";
+          this.tablaSalBtn.style.display = "none";
+          this.deleteSalBtn.style.display = "none";
+          this.salTablesSelectionDiv.style.display = "none";
+          if (this.saveProjectBtn) this.saveProjectBtn.style.display = "none";
+          if (this.saveProjectBtn2) this.saveProjectBtn2.style.display = "none";
+          if (this.deleteProjectBtn) this.deleteProjectBtn.style.display = "none";
+          
+          this.tableRenderer.allTablesSalTotals = [];
+          this.summaryTableGenerator.reset();
+          this.salTableManager.reset();
+          this.tableContainer.innerHTML = "";
+          this.summaryContainer.innerHTML = "";
+          
+          // Clear file input
+          this.fileInput.value = "";
+      } else {
+          alert(`❌ Errore durante l'eliminazione: ${result.message}`);
+      }
+  }
   }
 }

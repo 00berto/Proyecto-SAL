@@ -20,6 +20,7 @@ class ProjectManager {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          id: this.currentProjectId, // Pass ID for update
           name: projectName,
           excelData: excelData,
           salTables: salTables,

@@ -20,43 +20,36 @@
         </div>
       </div>
 
-      <div class="row mb-4">
-        <div class="col-md-6">
-          <div class="card h-100 border-0">
-            <div class="card-body p-0">
-              <h6 class="fw-bold text-uppercase text-secondary mb-2">IL COMMITTENTE</h6>
-              <div class="fs-5 fw-bold mb-1" id="committenteRagione"></div>
-              <div class="mb-1" id="committenteIndirizzo"></div>
-              <div class="text-muted small">
-                  Ref: <span id="committenteReferente"></span><br>
-                  R.L./CSE: <span id="committenteRL"></span><br>
-                  D.L.: <span id="committenteDL"></span><br>
-                  P.M.: <span id="committentePM"></span>
+      <!-- Top Header: Committente / Impresa / Lavori -->
+      <div class="row g-0 mb-4 border border-secondary">
+          <!-- Left: Committente -->
+          <div class="col-md-12 border-bottom border-secondary bg-light">
+              <div class="d-flex border-bottom border-secondary">
+                  <div class="p-2 fw-bold text-uppercase border-end border-secondary bg-light" style="width: 200px;">IL COMMITTENTE</div>
+                  <div class="p-2 flex-grow-1 fw-bold" id="committenteRagione"></div>
+                  <div class="p-2 border-start border-secondary" id="committenteIndirizzo"></div>
               </div>
-            </div>
           </div>
-        </div>
-        <div class="col-md-6 text-end">
-          <div class="card h-100 border-0">
-            <div class="card-body p-0">
-              <h6 class="fw-bold text-uppercase text-secondary mb-2">L’IMPRESA</h6>
-               <div class="fs-5 fw-bold mb-1" id="impresaRagione"></div>
-              <div class="mb-1" id="impresaIndirizzo"></div>
-              <div class="text-muted small">
-                 D.L. Impresa: <span id="impresaReferente"></span>
+          
+           <!-- Impresa -->
+           <div class="col-md-12 border-bottom border-secondary bg-light">
+              <div class="d-flex">
+                  <div class="p-2 fw-bold text-uppercase border-end border-secondary bg-light" style="width: 200px;">L'IMPRESA</div>
+                  <div class="p-2 flex-grow-1 fw-bold" id="impresaRagione"></div>
+                  <div class="p-2 border-start border-secondary" id="impresaIndirizzo"></div>
               </div>
-            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="row mb-4">
-          <div class="col-12">
-            <div class="p-3 bg-light border rounded">
-                <h6 class="fw-bold text-uppercase mb-2">OGGETTO DEI LAVORI</h6>
-                <p class="mb-1 fw-bold" id="progettoDescrizione"></p>
-                <p class="mb-0 text-muted"><small>Cantiere sito in: <span id="progettoIndirizzo"></span></small></p>
-            </div>
+          <!-- Lavori Di -->
+           <div class="col-md-12 bg-white">
+              <div class="d-flex">
+                  <div class="p-2 fw-bold text-uppercase border-end border-secondary bg-light" style="width: 200px;">LAVORI DI</div>
+                  <div class="p-2 flex-grow-1" id="progettoDescrizione"></div>
+              </div>
+              <div class="d-flex border-top border-secondary">
+                 <div class="p-2 fw-bold text-uppercase border-end border-secondary bg-white" style="width: 200px;"></div>
+                 <div class="p-2 text-muted small">Cantiere sito in: <span id="progettoIndirizzo"></span></div>
+              </div>
           </div>
       </div>
 
@@ -109,9 +102,16 @@
 
           <!-- Right Column: Main Calculation -->
           <div class="col-md-8">
-            <div class="d-flex justify-content-between align-items-end mb-3">
-                 <h4 class="mb-0 fw-bold">CERTIFICATO DI PAGAMENTO N. <span id="certificato-numero" class="text-primary">-</span></h4>
-                 <div class="text-muted small">Data emissione: <span id="data-sal"></span></div>
+            <!-- Main Title Box -->
+            <div class="border border-secondary mb-3">
+                <div class="bg-light p-2 text-center border-bottom border-secondary">
+                    <h3 class="fw-bold mb-0">CERTIFICATO DI PAGAMENTO N. <span id="certificato-numero" class="text-danger">-</span></h3>
+                </div>
+                <div class="d-flex">
+                    <div class="p-2 border-end border-secondary bg-info bg-opacity-10 fw-bold" style="width: 50%;">Stato di Avanzamento Lavori N. <span id="numero-sal-box">-</span></div>
+                    <div class="p-2 border-end border-secondary fw-bold text-end" style="width: 25%;">A tutto il</div>
+                    <div class="p-2 fw-bold text-center text-success" style="width: 25%;" id="data-sal"></div>
+                </div>
             </div>
             
             <table class="table table-bordered table-hover shadow-sm">
@@ -240,26 +240,31 @@
       </div>
 
       <!-- Firmas -->
-      <div class="row mt-5 pt-4 text-center" id="firmas-section">
-        <div class="col-4">
-          <div class="border-top border-dark pt-2 mx-4">
-             <p class="mb-0 fw-bold">R.L. e CSE</p>
-             <small id="committenteRL_Firma"></small>
-          </div>
-        </div>
-
-        <div class="col-4">
-           <div class="border-top border-dark pt-2 mx-4">
-            <p class="mb-0 fw-bold">Il Direttore dei Lavori</p>
-            <small id="committenteDL_Firma"></small>
-          </div>
-        </div>
-
-        <div class="col-4">
-           <div class="border-top border-dark pt-2 mx-4">
-            <p class="mb-0 fw-bold">L'Impresa</p>
-            <small id="impresaRagione_Firma"></small>
-          </div>
+      <div class="row mt-5 pt-2" id="firmas-section">
+        <div class="col-12">
+            <div class="row gx-0 text-center border border-secondary bg-light fw-bold text-uppercase small">
+                <div class="col-4 border-end border-secondary py-1">Il R.L. e CSE</div>
+                <div class="col-4 border-end border-secondary py-1">Il Committente</div>
+                <div class="col-4 py-1">L'Impresa</div>
+            </div>
+            <div class="row gx-0 border-start border-end border-bottom border-secondary" style="min-height: 80px;">
+                <div class="col-4 border-end border-secondary p-2 d-flex align-items-end justify-content-center">
+                    <small id="committenteRL_Firma"></small>
+                </div>
+                 <div class="col-4 border-end border-secondary p-2 d-flex align-items-end justify-content-center">
+                    <!-- Placeholder for Committente Signature or DL -->
+                    <small class="text-muted text-uppercase" id="committenteDL_Firma"></small> 
+                </div>
+                <div class="col-4 p-2 d-flex align-items-end justify-content-center">
+                    <small id="impresaRagione_Firma"></small>
+                </div>
+            </div>
+             <div class="row gx-0 text-center border-start border-end border-bottom border-secondary bg-light fw-bold text-uppercase small">
+                <!-- Additional row if needed for titles, otherwise keep single row -->
+                <div class="col-4 border-end border-secondary py-1">(firma)</div>
+                <div class="col-4 border-end border-secondary py-1">(firma)</div>
+                <div class="col-4 py-1">(firma)</div>
+            </div>
         </div>
       </div>
     </div>

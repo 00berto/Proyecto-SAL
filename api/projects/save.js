@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     }
     
     const sql = neon(databaseUrl);
-    const { name, excelData, salTables, companyData } = req.body;
+    const { id, name, excelData, salTables, companyData } = req.body;
     
     if (!name) {
       return res.status(400).json({
@@ -27,12 +27,34 @@ export default async function handler(req, res) {
         message: 'Project name is required'
       });
     }
-    
-    const result = await sql`
-      INSERT INTO projects (name, excel_data, sal_tables, company_data, updated_at)
-      VALUES (${name}, ${JSON.stringify(excelData)}, ${JSON.stringify(salTables)}, ${JSON.stringify(companyData)}, CURRENT_TIMESTAMP)
-      RETURNING id, name, created_at, updated_at
-    `;
+
+    let result;
+    if (id) {
+       // Update existing project
+       result = await sql`
+        UPDATE projects
+        SET name = ${name}, 
+            excel_data = ${JSON.stringify(excelData)}, 
+            sal_tables = ${JSON.stringify(salTables)}, 
+            company_data = ${JSON.stringify(companyData)}, 
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${id}
+        RETURNING id, name, created_at, updated_at
+      `;
+      
+      if (result.length === 0) {
+          // Fallback if ID not found? Or error?
+          // Let's treat as insert if not found, or error. Sticking to error for safety.
+          return res.status(404).json({ success: false, message: 'Project to update not found' });
+      }
+    } else {
+       // Insert new project
+       result = await sql`
+        INSERT INTO projects (name, excel_data, sal_tables, company_data, updated_at)
+        VALUES (${name}, ${JSON.stringify(excelData)}, ${JSON.stringify(salTables)}, ${JSON.stringify(companyData)}, CURRENT_TIMESTAMP)
+        RETURNING id, name, created_at, updated_at
+      `;
+    }
     
     return res.status(200).json({
       success: true,
