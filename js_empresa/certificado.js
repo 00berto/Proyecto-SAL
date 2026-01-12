@@ -135,47 +135,75 @@ function updateCertificatoHeader(salData) {
 document.addEventListener("DOMContentLoaded", () => {
   // 1️⃣ Cargar datos de empresa/proyecto
   // 1️⃣ Cargar datos de empresa/proyecto
-  const dati = JSON.parse(localStorage.getItem("certificatoDati")) || {};
-  
-  // Committente
-  if (dati.committente) {
-    document.getElementById("committenteRagione").textContent = dati.committente.ragioneSociale || "";
-    document.getElementById("committenteIndirizzo").textContent = dati.committente.indirizzo || "";
-    document.getElementById("committenteReferente").textContent = dati.committente.referente || "";
-    document.getElementById("committenteRL").textContent = dati.committente.rlAndCse || "";
-    document.getElementById("committenteDL").textContent = dati.committente.direttoreLavori || "";
-    document.getElementById("committentePM").textContent = dati.committente.projectManager || "";
+  try {
+      const dati = JSON.parse(localStorage.getItem("certificatoDati")) || {};
+      
+      // Committente
+      if (dati.committente) {
+        if(document.getElementById("committenteRagione")) document.getElementById("committenteRagione").textContent = dati.committente.ragioneSociale || "";
+        if(document.getElementById("committenteIndirizzo")) document.getElementById("committenteIndirizzo").textContent = dati.committente.indirizzo || "";
+        if(document.getElementById("committenteReferente")) document.getElementById("committenteReferente").textContent = dati.committente.referente || "";
+        if(document.getElementById("committenteRL")) document.getElementById("committenteRL").textContent = dati.committente.rlAndCse || "";
+        if(document.getElementById("committenteDL")) document.getElementById("committenteDL").textContent = dati.committente.direttoreLavori || "";
+        if(document.getElementById("committentePM")) document.getElementById("committentePM").textContent = dati.committente.projectManager || "";
 
-    // Signatures placeholders
-    if(document.getElementById("committenteRL_Firma")) document.getElementById("committenteRL_Firma").textContent = dati.committente.rlAndCse || "";
-    if(document.getElementById("committenteDL_Firma")) document.getElementById("committenteDL_Firma").textContent = dati.committente.direttoreLavori || "";
-    if(document.getElementById("impresaRagione_Firma")) document.getElementById("impresaRagione_Firma").textContent = dati.impresa.ragioneSociale || "";
-  }
+        // Signatures placeholders
+        if(document.getElementById("committenteRL_Firma")) document.getElementById("committenteRL_Firma").textContent = dati.committente.rlAndCse || "";
+        if(document.getElementById("committenteDL_Firma")) document.getElementById("committenteDL_Firma").textContent = dati.committente.direttoreLavori || "";
+        if(document.getElementById("impresaRagione_Firma")) document.getElementById("impresaRagione_Firma").textContent = dati.impresa.ragioneSociale || "";
+      }
 
-  // Impresa
-  if (dati.impresa) {
-    document.getElementById("impresaRagione").textContent = dati.impresa.ragioneSociale || "";
-    document.getElementById("impresaIndirizzo").textContent = dati.impresa.indirizzo || "";
-    document.getElementById("impresaReferente").textContent = dati.impresa.direttoreLavori || "";
-    // Note: ID impresaDL in HTML might need to check if it exists or maps to referente
-    const impresaDLEl = document.getElementById("impresaDL");
-    if(impresaDLEl) impresaDLEl.textContent = dati.impresa.direttoreLavori || ""; 
-  }
+      // Impresa
+      if (dati.impresa) {
+        if(document.getElementById("impresaRagione")) document.getElementById("impresaRagione").textContent = dati.impresa.ragioneSociale || "";
+        if(document.getElementById("impresaIndirizzo")) document.getElementById("impresaIndirizzo").textContent = dati.impresa.indirizzo || "";
+        if(document.getElementById("impresaReferente")) document.getElementById("impresaReferente").textContent = dati.impresa.direttoreLavori || "";
+        const impresaDLEl = document.getElementById("impresaDL");
+        if(impresaDLEl) impresaDLEl.textContent = dati.impresa.direttoreLavori || ""; 
+      }
 
-  // Progetto
-  if (dati.progetto) {
-    document.getElementById("progettoDescrizione").textContent = dati.progetto.descrizione || "";
-    document.getElementById("progettoIndirizzo").textContent = dati.progetto.indirizzo || "";
-    
-    // Format Dates
-    const formatDate = (dateString) => {
-        if (!dateString) return "";
-        const [year, month, day] = dateString.split("-");
-        return `${day}/${month}/${year}`;
-    };
+      // Progetto
+      if (dati.progetto) {
+        if(document.getElementById("progettoDescrizione")) document.getElementById("progettoDescrizione").textContent = dati.progetto.descrizione || "";
+        if(document.getElementById("progettoIndirizzo")) document.getElementById("progettoIndirizzo").textContent = dati.progetto.indirizzo || "";
+        
+        // Format Dates
+        const formatDate = (dateString) => {
+            if (!dateString) return "";
+            try {
+                const [year, month, day] = dateString.split("-");
+                return `${day}/${month}/${year}`;
+            } catch(e) { return dateString; }
+        };
 
-    document.getElementById("dataInizio").textContent = formatDate(dati.progetto.dataInicio);
-    document.getElementById("dataFine").textContent = formatDate(dati.progetto.dataFinePrevista);
+        if(document.getElementById("dataInizio")) document.getElementById("dataInizio").textContent = formatDate(dati.progetto.dataInicio);
+        if(document.getElementById("dataFine")) document.getElementById("dataFine").textContent = formatDate(dati.progetto.dataFinePrevista);
+      }
+      
+      // Assicurazioni (moved here to share `dati` scope safety)
+      const tbodyAss = document.querySelector("#assicurazioni-table tbody");
+      if (tbodyAss) {
+          tbodyAss.innerHTML = "";
+          if (dati.assicurazioni && dati.assicurazioni.length > 0) {
+            dati.assicurazioni.forEach((ass) => {
+              const row = document.createElement("tr");
+              const cellIndirizzo = document.createElement("td");
+              cellIndirizzo.textContent = `Gli operai dell'impresa sono assicurati presso ${ass.indirizzo}`;
+              row.appendChild(cellIndirizzo);
+              const cellNumero = document.createElement("td");
+              cellNumero.textContent = ass.numero;
+              row.appendChild(cellNumero);
+              tbodyAss.appendChild(row);
+            });
+          } else {
+            const row = document.createElement("tr");
+            row.innerHTML = '<td colspan="2" class="text-center">Nessuna assicurazione inserita</td>';
+            tbodyAss.appendChild(row);
+          }
+      }
+
+  } catch (err) {
+      console.error("Error loading company data:", err);
   }
 
   // 2️⃣ Cargar todos los SAL del manager o localStorage
@@ -227,30 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .save();
   });
   
-  // Tabla assicurazioni
-  const tbody = document.querySelector("#assicurazioni-table tbody");
-  tbody.innerHTML = "";
-
-  if (dati.assicurazioni && dati.assicurazioni.length > 0) {
-    dati.assicurazioni.forEach((ass) => {
-      const row = document.createElement("tr");
-
-      const cellIndirizzo = document.createElement("td");
-      cellIndirizzo.textContent = `Gli operai dell'impresa sono assicurati presso ${ass.indirizzo}`;
-      row.appendChild(cellIndirizzo);
-
-      const cellNumero = document.createElement("td");
-      cellNumero.textContent = ass.numero;
-      row.appendChild(cellNumero);
-
-      tbody.appendChild(row);
-    });
-  } else {
-    const row = document.createElement("tr");
-    row.innerHTML =
-      '<td colspan="2" class="text-center">Nessuna assicurazione inserita</td>';
-    tbody.appendChild(row);
-  }
+  // Tabla assicurazioni handled above
 
   // ===== Rellenar tabla SAL / Costi =====
   function populateSalTable(salDataArray) {

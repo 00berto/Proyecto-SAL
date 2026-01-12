@@ -258,6 +258,7 @@ class SalTableManager {
       if (this.selectionSection) {
         this.selectionSection.style.display = "none";
       }
+      localStorage.removeItem("currentProjectSalData");
     }
   
     getSelectedSalTableIds() {

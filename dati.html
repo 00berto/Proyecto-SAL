@@ -180,18 +180,26 @@
         };
 
         //infortuni
-        const indirizzi = document.querySelectorAll(
-          'input[name="indirizzo[]"]'
-        );
-        const numeros = document.querySelectorAll('input[name="numero[]"]');
+        // Infortuni saving logic
         const assicurazioni = [];
-
-        for (let i = 0; i < indirizzi.length; i++) {
-          assicurazioni.push({
-            indirizzo: indirizzi[i].value,
-            numero: numeros[i].value,
-          });
-        }
+        const rows = document.querySelectorAll("#presse-container .row");
+        
+        rows.forEach(row => {
+            const indirizzoInput = row.querySelector('input[name="indirizzo[]"]');
+            const numeroInput = row.querySelector('input[name="numero[]"]');
+            
+            if (indirizzoInput && numeroInput) {
+                const indVal = indirizzoInput.value.trim();
+                const numVal = numeroInput.value.trim();
+                
+                if (indVal || numVal) {
+                    assicurazioni.push({
+                        indirizzo: indVal,
+                        numero: numVal
+                    });
+                }
+            }
+        });
         dati.assicurazioni = assicurazioni;
 
         localStorage.setItem("certificatoDati", JSON.stringify(dati));
