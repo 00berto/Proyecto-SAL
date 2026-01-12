@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Datos del formulario a guardar:", formData);
     localStorage.setItem("certificatoDati", JSON.stringify(formData));
     alert("Dati salvati con successo! Puoi procedere.");
+    window.location.href = "certificado.html";
   });
 
   // 3. Lógica para cargar los datos desde localStorage al cargar la página
