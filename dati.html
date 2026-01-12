@@ -157,29 +157,26 @@
     <script>
       function salvaDati() {
         const dati = {
-          //commitente
-          committenteRagione:
-            document.getElementById("committenteRagione").value,
-          committenteIndirizzo: document.getElementById("committenteIndirizzo")
-            .value,
-          committenteReferente: document.getElementById("committenteReferente")
-            .value,
-          committenteRL: document.getElementById("committenteRL").value,
-          committenteDL: document.getElementById("committenteDL").value,
-          committentePM: document.getElementById("committentePM").value,
-          //emprsa
-          impresaRagione: document.getElementById("impresaRagione").value,
-          impresaIndirizzo: document.getElementById("impresaIndirizzo").value,
-          committenteReferente:
-            document.getElementById("impresaReferente").value,
-
-          impresaDL: document.getElementById("impresaDL").value,
-          //progetto
-          progettoDescrizione: document.getElementById("progettoDescrizione")
-            .value,
-          progettoIndirizzo: document.getElementById("progettoIndirizzo").value,
-          dataInizio: document.getElementById("dataInizio").value,
-          dataFine: document.getElementById("dataFine").value,
+          committente: {
+            ragioneSociale: document.getElementById("committenteRagione").value,
+            indirizzo: document.getElementById("committenteIndirizzo").value,
+            referente: document.getElementById("committenteReferente").value,
+            rlAndCse: document.getElementById("committenteRL").value,
+            direttoreLavori: document.getElementById("committenteDL").value,
+            projectManager: document.getElementById("committentePM").value,
+          },
+          impresa: {
+            ragioneSociale: document.getElementById("impresaRagione").value,
+            indirizzo: document.getElementById("impresaIndirizzo").value,
+            direttoreLavori: document.getElementById("impresaDL").value,
+            referente: document.getElementById("impresaReferente").value
+          },
+          progetto: {
+            descrizione: document.getElementById("progettoDescrizione").value,
+            indirizzo: document.getElementById("progettoIndirizzo").value,
+            dataInicio: document.getElementById("dataInizio").value,
+            dataFinePrevista: document.getElementById("dataFine").value,
+          }
         };
 
         //infortuni

@@ -7,6 +7,8 @@ class TableRenderer {
     // Índices de columnas que siempre se totalizarán (basado en el original)
     this.autoTotalColumnIndexes = [4, 5, 6, 7];
     this.allTablesSalTotals = []; // Se mantiene aquí para cada instancia o si es un singleton, en la clase App
+    this.data = []; // Store raw data
+    this.headers = []; // Store headers
   }
 
   /**
@@ -15,6 +17,9 @@ class TableRenderer {
    * @param {Array<string>} headers - Las cabeceras globales del Excel.
    */
   renderTables(jsonDataRows, headers) {
+    this.data = jsonDataRows; // Save for ProjectManager
+    this.headers = headers;   // Save for ProjectManager
+    
     this.container.innerHTML = ""; // Limpiar tablas existentes
     this.allTablesSalTotals = []; // Resetear los totales
 
