@@ -117,9 +117,15 @@ function updateCertificatoHeader(salData) {
   const numSal = salData.numeroSAL || "-";
   if(document.getElementById("numero-sal")) document.getElementById("numero-sal").textContent = numSal;
   if(document.getElementById("numero-sal-box")) document.getElementById("numero-sal-box").textContent = numSal;
+  
+  // Handle user's new duplicate ID 'numero-certificato-box'
+  const certBoxes = document.querySelectorAll('[id="numero-certificato-box"]');
+  certBoxes.forEach(el => el.textContent = numSal);
 
-  document.getElementById("data-sal").textContent =
-    salData.fechaModificacion || "-";
+  const dataEl = document.getElementById("data-sal") || document.getElementById("data-certificato");
+  if (dataEl) {
+      dataEl.textContent = salData.fechaModificacion || "-";
+  }
 
   const total = parseFloat(salData.totalGlobalSAL) || 0;
   document.getElementById("importo-sal").textContent = total.toLocaleString(
